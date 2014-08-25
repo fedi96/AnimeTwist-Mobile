@@ -1,0 +1,36 @@
+<resources>
+
+    <!-- Theme -->
+    <style name="AT.Default" parent="android:Theme.Holo">
+        <item name="android:actionBarStyle">@style/ActionBar</item>
+        <item name="android:editTextStyle">@style/EditText</item>
+        <item name="android:buttonStyle">@style/Button</item>
+        <item name="android:windowBackground">@color/black</item>
+        <item name="android:color">@color/gray_light</item>
+        <item name="android:activatedBackgroundIndicator">@drawable/activated_bg</item>
+    </style>
+
+    <style name="AT.NoActionBar" parent="AT.Default">
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+
+
+    <!-- Individual Components. -->
+    <style name="ActionBar" parent="@android:style/Widget.Holo.ActionBar">
+        <item name="android:background">@drawable/actionbar_bg</item>
+    </style>
+
+    <style name="EditText" parent="android:Widget.EditText">
+        <item name="android:background">@drawable/component_edittext</item>
+        <item name="android:textColor">@color/gray_light</item>
+    </style>
+
+    <style name="Button" parent="@android:style/Widget.Button">
+        <item name="android:background">@drawable/component_button</item>
+        <item name="android:textColor">@color/gray_light</item>
+        <item name="android:textSize">@dimen/button_text_size</item>
+        <item name="android:minWidth">@dimen/button_min_width</item>
+        <item name="android:minHeight">@dimen/button_min_height</item>
+    </style>
+</resources>

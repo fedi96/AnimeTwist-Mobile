@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="default_vertical">16dp</dimen>
+    <dimen name="default_horizontal">16dp</dimen>
+    <dimen name="login_vertical">90dp</dimen>
+    <dimen name="none">0dp</dimen>
+
+    <!-- Button Config -->
+    <dimen name="button_min_width">100dp</dimen>
+    <dimen name="button_min_height">45dp</dimen>
+    <dimen name="button_text_size">16dp</dimen>
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="navigation_drawer_width">240dp</dimen>
+
+</resources>
