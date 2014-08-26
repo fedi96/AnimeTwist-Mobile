@@ -36,8 +36,24 @@ public class LoginFragment extends Fragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 	                         Bundle savedInstanceState) {
-		view = inflater.inflate(R.layout.fragment_login, container, false);
 		cachedUser = this.getActivity().getSharedPreferences("USER", Context.MODE_PRIVATE);
+		//  Login with cached user if exists
+		if (cachedUser.contains("username")) {
+			String cachedUsername = cachedUser.getString("username", "");
+			String cachedPassword = cachedUser.getString("password", "");
+
+			if (loginSubmit(cachedUsername, cachedPassword)) {
+				Intent chatIntent = new Intent(getActivity(), ChatActivity.class)
+						.putExtra("user", user);
+				startActivity(chatIntent);
+				getActivity().finish();
+				return null;
+			} else {
+				usernameInput.setError("Failed to login");
+				usernameInput.requestFocus();
+			}
+		}
+		view = inflater.inflate(R.layout.fragment_login, container, false);
 
 		// Initialize UI Components
 		registerButton = (TextView) view.findViewById(R.id.login_signup);
@@ -57,21 +73,6 @@ public class LoginFragment extends Fragment {
 
 		// Set login button listener
 		loginButton.setOnClickListener(loginListener());
-
-		//  Login with cached user if exists
-		if (cachedUser.contains("username")) {
-			String cachedUsername = cachedUser.getString("username", "");
-			String cachedPassword = cachedUser.getString("password", "");
-
-			if (loginSubmit(cachedUsername, cachedPassword)) {
-				Intent chatIntent = new Intent(getActivity(), ChatActivity.class)
-						.putExtra("user", user);
-				startActivity(chatIntent);
-				getActivity().finish();
-			} else {
-				usernameInput.setError("Failed to login");
-			}
-		}
 
 		return view;
 	}
@@ -96,6 +97,7 @@ public class LoginFragment extends Fragment {
 						getActivity().finish();
 					} else {
 						usernameInput.setError("Invalid Credentials");
+						usernameInput.requestFocus();
 					}
 				}
 			}
