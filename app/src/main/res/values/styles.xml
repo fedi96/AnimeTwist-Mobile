@@ -33,8 +33,4 @@
         <item name="android:minWidth">@dimen/button_min_width</item>
         <item name="android:minHeight">@dimen/button_min_height</item>
     </style>
-
-    <style name="username_listitem" parent="AT.Default">
-        <item name="android:textStyle">bold</item>
-    </style>
 </resources>

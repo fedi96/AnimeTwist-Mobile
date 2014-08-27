@@ -1,4 +1,4 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -6,21 +6,21 @@
     android:orientation="vertical">
 
     <ListView
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_width="wrap_content"
+        android:layout_height="470dp"
         android:id="@+id/messages_listview"
-        android:layout_weight="1"
         android:divider="@color/red_dark_extreme"
-        android:dividerHeight="1dp"/>
+        android:dividerHeight="1dp"
+        android:layout_gravity="center_horizontal|top"/>
 
     <EditText
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
         android:id="@+id/messageInput"
-        android:layout_gravity="bottom"
-        android:layout_weight="10"
-        android:singleLine="true"
+        android:singleLine="false"
         android:inputType="text"
-        android:layout_margin="6dp"/>
+        android:imeOptions="actionSend"
+        android:layout_gravity="center_horizontal|bottom"/>
 
-</LinearLayout>
+    <!--https://developer.android.com/training/keyboard-input/style.html#Action-->
+</FrameLayout>

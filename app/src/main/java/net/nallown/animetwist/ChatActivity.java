@@ -103,4 +103,10 @@ public class ChatActivity extends Activity
 //        }
         return super.onOptionsItemSelected(item);
     }
+
+	// Hide app instead of closing
+	@Override
+	public void onBackPressed() {
+		moveTaskToBack(true);
+	}
 }
