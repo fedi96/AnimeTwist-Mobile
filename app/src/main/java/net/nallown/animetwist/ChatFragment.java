@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 
 import net.nallown.animetwist.at.User;
 
@@ -14,7 +15,10 @@ import net.nallown.animetwist.at.User;
  */
 
 public class ChatFragment extends Fragment {
+	View view;
 	User user = null;
+	ListView messageListview = null;
+
 	/**
 	 * The fragment argument representing the section number for this
 	 * fragment.
@@ -39,8 +43,13 @@ public class ChatFragment extends Fragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 	                         Bundle savedInstanceState) {
-		View rootView = inflater.inflate(R.layout.fragment_chat, container, false);
-		return rootView;
+		// Initialize components
+		view = inflater.inflate(R.layout.fragment_chat, container, false);
+		messageListview = (ListView) view.findViewById(R.id.messages_listview);
+
+
+
+		return view;
 	}
 
 	@Override

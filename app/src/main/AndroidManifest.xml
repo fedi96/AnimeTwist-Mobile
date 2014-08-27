@@ -6,12 +6,12 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AT.Default"
-        android:screenOrientation="portrait" >
+        android:theme="@style/AT.Default" >
         <activity
             android:name=".LoginActivity"
             android:label="@string/app_name"
-            android:theme="@style/AT.NoActionBar" >
+            android:theme="@style/AT.NoActionBar"
+            android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -21,7 +21,8 @@
 
         <activity
             android:name=".ChatActivity"
-            android:label="@string/chat_screen" >
+            android:label="@string/chat_screen"
+            android:screenOrientation="portrait" >
         </activity>
     </application>
 
