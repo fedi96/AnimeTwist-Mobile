@@ -1,5 +1,7 @@
 package net.nallown.animetwist.at.chat;
 
+import org.json.JSONObject;
+
 /**
  * Created by Nasir on 27/08/2014.
  */
@@ -9,8 +11,7 @@ public final class Message {
 	private int donation;
 	private boolean admin;
 
-
-	public Message(String message, String username, boolean admin, int donation){
+	public Message(String username, String message, boolean admin, int donation){
 		this.message = message;
 		this.username = username;
 		this.donation = donation;
@@ -18,7 +19,9 @@ public final class Message {
 	}
 
 //	public static Message parseMessage(JSONObject msgJson) {
+//		Message MsgObj = new Message(STRING USERNAME, STRING MESSAGE, BOOLEAN IS_ADMIN, INT DONATION_AMOUNT);
 //
+//		return MsgObj;
 //	}
 
 	public String getMessage() {

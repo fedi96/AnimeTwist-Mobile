@@ -7,17 +7,33 @@
               android:padding="16dp"
               android:theme="@style/AT.Default">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="Username"
-        android:id="@+id/usernameHolder"
-        android:textStyle="bold"/>
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:layout_width="18dp"
+            android:layout_height="20dp"
+            android:id="@+id/donationBadge"
+            android:src="@drawable/badge"
+            android:visibility="gone"
+            android:adjustViewBounds="false"
+            android:layout_marginRight="2dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="Username"
+            android:id="@+id/usernameHolder"
+            android:textStyle="bold"/>
+    </LinearLayout>
 
     <TextView
         android:layout_marginTop="6dp"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="This is a very long message like very long uknow aha just a test"
         android:id="@+id/messageHolder"
