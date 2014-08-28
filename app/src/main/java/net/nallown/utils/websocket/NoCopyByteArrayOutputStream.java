@@ -16,7 +16,7 @@
  *
  ******************************************************************************/
 
-package de.tavendo.autobahn;
+package net.nallown.utils.websocket;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

@@ -16,7 +16,7 @@
  *
  ******************************************************************************/
 
-package de.tavendo.autobahn;
+package net.nallown.utils.websocket;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -30,8 +30,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
-import de.tavendo.autobahn.WebSocket.WebSocketConnectionObserver.WebSocketCloseNotification;
-import de.tavendo.autobahn.WebSocketMessage.WebSocketCloseCode;
+import net.nallown.utils.websocket.WebSocket.WebSocketConnectionObserver.WebSocketCloseNotification;
 
 public class WebSocketConnection implements WebSocket {
 	private static final String TAG = WebSocketConnection.class.getName();
@@ -386,7 +385,7 @@ public class WebSocketConnection implements WebSocket {
 
 			Log.d(TAG, "WebSockets Close received (" + close.getCode() + " - " + close.getReason() + ")");
 
-			mWebSocketWriter.forward(new WebSocketMessage.Close(WebSocketCloseCode.NORMAL));
+			mWebSocketWriter.forward(new WebSocketMessage.Close(WebSocketMessage.WebSocketCloseCode.NORMAL));
 
 		} else if (message.obj instanceof WebSocketMessage.ServerHandshake) {
 			WebSocketMessage.ServerHandshake serverHandshake = (WebSocketMessage.ServerHandshake) message.obj;

@@ -16,7 +16,7 @@
  *
  ******************************************************************************/
 
-package de.tavendo.autobahn;
+package net.nallown.utils.websocket;
 
 import java.io.IOException;
 import java.io.InputStream;

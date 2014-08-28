@@ -19,7 +19,7 @@
  *
  ******************************************************************************/
 
-package de.tavendo.autobahn;
+package net.nallown.utils.websocket;
 
 
 /**

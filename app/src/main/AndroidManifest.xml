@@ -24,8 +24,19 @@
             android:label="@string/chat_screen"
             android:screenOrientation="portrait" >
         </activity>
+
+
+        <receiver
+            android:name="net.nallown.utils.NetworkReceiver"
+            android:label="NetworkReceiver">
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+                <action android:name="android.net.wifi.WIFI_STATE_CHANGED" />
+            </intent-filter>
+        </receiver>
     </application>
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
 </manifest>

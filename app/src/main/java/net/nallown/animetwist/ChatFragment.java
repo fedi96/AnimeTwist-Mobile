@@ -2,6 +2,9 @@ package net.nallown.animetwist;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -12,8 +15,11 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import net.nallown.animetwist.at.Listener.SocketListener;
+import net.nallown.utils.NetworkReceiver;
+import net.nallown.utils.States.NetworkStates;
+import net.nallown.utils.States.SocketStates;
 import net.nallown.animetwist.at.User;
 import net.nallown.animetwist.at.chat.ChatSocketHandler;
 import net.nallown.animetwist.at.chat.Message;
@@ -23,7 +29,8 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-import de.tavendo.autobahn.WebSocket;
+import net.nallown.utils.Network;
+import net.nallown.utils.websocket.WebSocket;
 
 /**
  * Created by Nasir on 26/08/2014.
@@ -76,51 +83,74 @@ public class ChatFragment extends Fragment{
 		messages = new ArrayList<Message>();
 		messageAdapter = new MessageAdapter(getActivity(), R.layout.list_item_message, messages);
 
+        messageField = (EditText) view.findViewById(R.id.messageInput);
+
+        networkReceiver = new NetworkReceiver(new NetworkStates() {
+            @Override
+            public void onConnectionChange(int ConnectionType, String connectionMessage) {
+                if (ConnectionType == Network.TYPE_NON) {
+                    chatSocket.getSocket().disconnect();
+
+                    Toast.makeText(getActivity(), "Lost connection", Toast.LENGTH_LONG).show();
+                } else {
+                    chatSocket.reConnect();
+
+                    Toast.makeText(getActivity(), connectionMessage, Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+
 		messageListview.setAdapter(messageAdapter);
 		messageListview.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
 		messageListview.setStackFromBottom(true);
 
-		messageField = (EditText) view.findViewById(R.id.messageInput);
+        socketManager();
+
 		messageField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-			@Override
-			public boolean onEditorAction(TextView textView, int actionID, KeyEvent keyEvent) {
-				String message = messageField.getText().toString().trim();
+            @Override
+            public boolean onEditorAction(TextView textView, int actionID, KeyEvent keyEvent) {
+                String message = messageField.getText().toString().trim();
 
-				if (actionID == EditorInfo.IME_ACTION_SEND && !message.isEmpty()){
-					JSONObject authJson = new JSONObject();
-					JSONObject msgJson = new JSONObject();
-					try {
-						authJson.put("type", "msg");
-						authJson.put("msg", message);
-					} catch (JSONException e) {
-						e.printStackTrace();
-					}
+                if (actionID == EditorInfo.IME_ACTION_SEND && !message.isEmpty()) {
+                    JSONObject msgJson = new JSONObject();
+                    try {
+                        msgJson.put("type", "msg");
+                        msgJson.put("msg", message);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
 
-					chatSocket.sendMessage(authJson.toString());
-					messageField.setText(null);
-					return true;
-				}
+                    chatSocket.sendMessage(msgJson.toString());
+                    messageField.setText(null);
+                    return true;
+                }
 
-				return false;
-			}
-		});
+                return false;
+            }
+        });
 
-		socketManager();
-
-		// Dummy messages
-//		for (int i = 0; i < 13; i++) {
-//			Random random = new Random();
-//			String randMsg = UUID.randomUUID().toString();
-//
-//			messages.add(new Message("Test USER" + i, randMsg, true, random.nextInt(100)));
-//		}
-
-		messageAdapter.notifyDataSetChanged();
 		return view;
 	}
 
+    private BroadcastReceiver networkReceiver = new BroadcastReceiver() {
+        int connectionStatus = Network.getConnectivityStatus(getActivity());
+        String connectionMessage = Network.getStatusMessage(getActivity());
 
-	@Override
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (connectionStatus == Network.TYPE_NON) {
+                chatSocket.getSocket().disconnect();
+
+                Toast.makeText(getActivity(), "Lost connection", Toast.LENGTH_LONG).show();
+            } else {
+                chatSocket.reConnect();
+
+                Toast.makeText(getActivity(), connectionMessage, Toast.LENGTH_LONG).show();
+            }
+        }
+    };
+
+    @Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
 		((ChatActivity) activity).onSectionAttached(
@@ -128,11 +158,10 @@ public class ChatFragment extends Fragment{
 	}
 
 	private void socketManager(){
-		chatSocket = new ChatSocketHandler(new SocketListener() {
+		chatSocket = new ChatSocketHandler(new SocketStates() {
 			@Override
 			public void onOpen() {
 				JSONObject authJson = new JSONObject();
-				JSONObject msgJson = new JSONObject();
 				try {
 					authJson.put("type", "auth");
 					authJson.put("token", user.getSessionID());
@@ -150,18 +179,20 @@ public class ChatFragment extends Fragment{
 
 			@Override
 			public void onTextMessage(final String payload) {
-				if (!payload.equals("keep-alive")) {
-					try {
-						final JSONObject msgJson = new JSONObject(payload);
+                if (payload.equals("keep-alive")) {
+                    return;
+                }
 
-						if (!msgJson.has("auth")) {
-							messages.add(Message.parseMessage(msgJson));
-							messageAdapter.notifyDataSetChanged();
-						}
-					} catch (JSONException e) {
-						e.printStackTrace();
-					}
-				}
+                try {
+                    JSONObject msgJson = new JSONObject(payload);
+
+                    if (!msgJson.has("auth")) {
+                        messages.add(Message.parseMessage(msgJson));
+                        messageAdapter.notifyDataSetChanged();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
 			}
 
 			@Override

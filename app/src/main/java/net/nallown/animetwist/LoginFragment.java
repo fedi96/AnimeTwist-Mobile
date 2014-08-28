@@ -16,7 +16,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import net.nallown.animetwist.at.FetchUser;
-import net.nallown.animetwist.at.Listener.RequestListener;
+import net.nallown.utils.States.RequestStates;
 import net.nallown.animetwist.at.User;
 
 import org.json.JSONException;
@@ -100,7 +100,7 @@ public class LoginFragment extends Fragment {
 
 	// Login the user and cache, return True if successful
 	public void loginSubmit(final String username, final String password) {
-		FetchUser userFetcher = new FetchUser(username, password, new RequestListener() {
+		FetchUser userFetcher = new FetchUser(username, password, new RequestStates() {
 			@Override
 			public void onError(Exception e) {
 				e.printStackTrace();
