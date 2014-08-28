@@ -62,7 +62,7 @@ public class MessageAdapter extends ArrayAdapter<Message>{
 			usernameField.setTextColor(getContext().getResources().getColor(R.color.red));
 		}
 
-		if (msg.getDonation() > 75) {
+		if (msg.getDonation()) {
 			donationBadge.setVisibility(View.VISIBLE);
 		}
 

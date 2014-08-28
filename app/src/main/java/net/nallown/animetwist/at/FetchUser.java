@@ -2,6 +2,8 @@ package net.nallown.animetwist.at;
 
 import android.os.AsyncTask;
 
+import net.nallown.animetwist.at.Listener.RequestListener;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;

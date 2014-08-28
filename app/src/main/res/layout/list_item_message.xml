@@ -26,7 +26,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="Username"
+            android:text="{{USERNAME}}"
             android:id="@+id/usernameHolder"
             android:textStyle="bold"/>
     </LinearLayout>
@@ -35,8 +35,9 @@
         android:layout_marginTop="6dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="This is a very long message like very long uknow aha just a test"
+        android:text="{{MESSAGE}}"
         android:id="@+id/messageHolder"
-        android:linksClickable="true"/>
+        android:linksClickable="true"
+        android:autoLink="web"/>
 
 </LinearLayout>

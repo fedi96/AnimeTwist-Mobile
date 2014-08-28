@@ -21,7 +21,10 @@
         android:singleLine="false"
         android:inputType="text"
         android:imeOptions="actionSend"
-        android:hint="..."/>
+        android:hint="..."
+        style="@style/EditText.Message"
+        android:layout_marginTop="1dp"
+        android:autoText="true"/>
 
     <!--https://developer.android.com/training/keyboard-input/style.html#Action-->
 </LinearLayout>

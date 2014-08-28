@@ -3,6 +3,7 @@ package net.nallown.animetwist;
 import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,26 +13,34 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import net.nallown.animetwist.at.Listener.SocketListener;
 import net.nallown.animetwist.at.User;
+import net.nallown.animetwist.at.chat.ChatSocketHandler;
 import net.nallown.animetwist.at.chat.Message;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
-import java.util.Random;
-import java.util.UUID;
+
+import de.tavendo.autobahn.WebSocket;
 
 /**
  * Created by Nasir on 26/08/2014.
  */
 
-public class ChatFragment extends Fragment {
-	View view;
+public class ChatFragment extends Fragment{
+	private final String LOG_TAG = getClass().getSimpleName();
 	User user = null;
-	ListView messageListview = null;
 
-	MessageAdapter messageAdapter = null;
 	ArrayList<Message> messages = null;
-
+	MessageAdapter messageAdapter = null;
+	ListView messageListview = null;
 	EditText messageField = null;
+
+	ChatSocketHandler chatSocket = null;
+
+	View view;
 
 	/**
 	 * The fragment argument representing the section number for this
@@ -78,10 +87,17 @@ public class ChatFragment extends Fragment {
 				String message = messageField.getText().toString().trim();
 
 				if (actionID == EditorInfo.IME_ACTION_SEND && !message.isEmpty()){
-					messages.add(new Message(user.getUsername(), message, false, 0));
-					messageField.setText("");
+					JSONObject authJson = new JSONObject();
+					JSONObject msgJson = new JSONObject();
+					try {
+						authJson.put("type", "msg");
+						authJson.put("msg", message);
+					} catch (JSONException e) {
+						e.printStackTrace();
+					}
 
-					messageAdapter.notifyDataSetChanged();
+					chatSocket.sendMessage(authJson.toString());
+					messageField.setText(null);
 					return true;
 				}
 
@@ -89,17 +105,20 @@ public class ChatFragment extends Fragment {
 			}
 		});
 
-		// Dummy messages
-		for (int i = 0; i < 13; i++) {
-			Random random = new Random();
-			String randMsg = UUID.randomUUID().toString();
+		socketManager();
 
-			messages.add(new Message("Test USER" + i, randMsg, true, random.nextInt(100)));
-		}
+		// Dummy messages
+//		for (int i = 0; i < 13; i++) {
+//			Random random = new Random();
+//			String randMsg = UUID.randomUUID().toString();
+//
+//			messages.add(new Message("Test USER" + i, randMsg, true, random.nextInt(100)));
+//		}
 
 		messageAdapter.notifyDataSetChanged();
 		return view;
 	}
+
 
 	@Override
 	public void onAttach(Activity activity) {
@@ -107,4 +126,53 @@ public class ChatFragment extends Fragment {
 		((ChatActivity) activity).onSectionAttached(
 				getArguments().getInt(ARG_SECTION_NUMBER));
 	}
+
+	private void socketManager(){
+		chatSocket = new ChatSocketHandler(new SocketListener() {
+			@Override
+			public void onOpen() {
+				JSONObject authJson = new JSONObject();
+				JSONObject msgJson = new JSONObject();
+				try {
+					authJson.put("type", "auth");
+					authJson.put("token", user.getSessionID());
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+
+				chatSocket.sendMessage(authJson.toString());
+			}
+
+			@Override
+			public void onClose(WebSocket.WebSocketConnectionObserver.WebSocketCloseNotification code, String reason) {
+				Log.i(LOG_TAG, "Code: " + code + "; Reason: " + reason);
+			}
+
+			@Override
+			public void onTextMessage(final String payload) {
+				if (!payload.equals("keep-alive")) {
+					try {
+						final JSONObject msgJson = new JSONObject(payload);
+
+						if (!msgJson.has("auth")) {
+							messages.add(Message.parseMessage(msgJson));
+							messageAdapter.notifyDataSetChanged();
+						}
+					} catch (JSONException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+
+			@Override
+			public void onRawTextMessage(byte[] payload) {}
+			@Override
+			public void onBinaryMessage(byte[] payload) {}
+			@Override
+			public void onError(Exception e) {
+				e.printStackTrace();
+			}
+		});
+	}
+
 }

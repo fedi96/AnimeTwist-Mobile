@@ -3,17 +3,22 @@ package net.nallown.animetwist;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.FragmentManager;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import net.nallown.animetwist.at.User;
 
 
 public class ChatActivity extends Activity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+	private final String LOG_TAG = getClass().getSimpleName();
+
+	SharedPreferences userSetting;
+
 	User user = null;
 
     /**
@@ -29,6 +34,8 @@ public class ChatActivity extends Activity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+	    userSetting = getSharedPreferences("USER", 0);
+
 	    Bundle data = getIntent().getExtras();
 	    user = (User) data.getParcelable("user");
 
@@ -40,11 +47,8 @@ public class ChatActivity extends Activity
 
         // Set up the drawer.
         mNavigationDrawerFragment.setUp(
-                R.id.navigation_drawer,
-                (DrawerLayout) findViewById(R.id.drawer_layout));
-
-	    final Toast sessionIDToast = Toast.makeText(getApplicationContext(), "Session ID: " + user.getSessionID(), Toast.LENGTH_LONG);
-	    sessionIDToast.show();
+		        R.id.navigation_drawer,
+		        (DrawerLayout) findViewById(R.id.drawer_layout));
     }
 
     @Override
@@ -59,13 +63,7 @@ public class ChatActivity extends Activity
     public void onSectionAttached(int number) {
         switch (number) {
             case 1:
-                mTitle = getString(R.string.title_section1);
-                break;
-            case 2:
-                mTitle = getString(R.string.title_section2);
-                break;
-            case 3:
-                mTitle = getString(R.string.title_section3);
+                mTitle = getString(R.string.chat_screen);
                 break;
         }
     }
@@ -98,9 +96,19 @@ public class ChatActivity extends Activity
         // as you specify a parent activity in AndroidManifest.xml.
 
         int id = item.getItemId();
-//        if (id == R.id.action_settings) {
-//            return true;
-//        }
+
+//	    clear User Cache on option Logout
+	    if (id == R.id.action_logout) {
+		    SharedPreferences.Editor editor = userSetting.edit();
+		    editor.clear();
+		    editor.commit();
+
+		    Intent loginIntent = new Intent(this, LoginActivity.class);
+		    startActivity(loginIntent);
+		    finish();
+
+		    return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 

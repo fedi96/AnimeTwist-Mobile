@@ -16,7 +16,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import net.nallown.animetwist.at.FetchUser;
-import net.nallown.animetwist.at.RequestListener;
+import net.nallown.animetwist.at.Listener.RequestListener;
 import net.nallown.animetwist.at.User;
 
 import org.json.JSONException;
