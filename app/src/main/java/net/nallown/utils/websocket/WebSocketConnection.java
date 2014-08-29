@@ -129,7 +129,6 @@ public class WebSocketConnection implements WebSocket {
 		}
 		
 		mSocketThread.getHandler().post(new Runnable() {
-			
 			@Override
 			public void run() {
 				Looper.myLooper().quit();
@@ -403,7 +402,7 @@ public class WebSocketConnection implements WebSocket {
 
 		} else if (message.obj instanceof WebSocketMessage.ConnectionLost) {
 			//			WebSocketMessage.ConnectionLost connectionLost = (WebSocketMessage.ConnectionLost) message.obj;
-			failConnection(WebSocketCloseNotification.CONNECTION_LOST, "WebSockets connection lost");
+//			failConnection(WebSocketCloseNotification.CONNECTION_LOST, "WebSockets connection lost");
 
 		} else if (message.obj instanceof WebSocketMessage.ProtocolViolation) {
 			//			WebSocketMessage.ProtocolViolation protocolViolation = (WebSocketMessage.ProtocolViolation) message.obj;
@@ -528,7 +527,7 @@ public class WebSocketConnection implements WebSocket {
 		@Override
 		public void handleMessage(Message message) {
 			WebSocketConnection webSocketConnection = mWebSocketConnection.get();
-			if (webSocketConnection != null) {
+			if (webSocketConnection != null && webSocketConnection.isConnected()) {
 				webSocketConnection.handleMessage(message);
 			}
 		}

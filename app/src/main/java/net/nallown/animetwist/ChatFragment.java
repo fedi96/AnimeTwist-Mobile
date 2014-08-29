@@ -18,7 +18,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import net.nallown.utils.NetworkReceiver;
-import net.nallown.utils.States.NetworkStates;
 import net.nallown.utils.States.SocketStates;
 import net.nallown.animetwist.at.User;
 import net.nallown.animetwist.at.chat.ChatSocketHandler;
@@ -36,8 +35,9 @@ import net.nallown.utils.websocket.WebSocket;
  * Created by Nasir on 26/08/2014.
  */
 
-public class ChatFragment extends Fragment{
+public class ChatFragment extends Fragment {
 	private final String LOG_TAG = getClass().getSimpleName();
+
 	User user = null;
 
 	ArrayList<Message> messages = null;
@@ -46,6 +46,7 @@ public class ChatFragment extends Fragment{
 	EditText messageField = null;
 
 	ChatSocketHandler chatSocket = null;
+	NetworkReceiver networkReceiver = new NetworkReceiver();
 
 	View view;
 
@@ -85,21 +86,6 @@ public class ChatFragment extends Fragment{
 
         messageField = (EditText) view.findViewById(R.id.messageInput);
 
-        networkReceiver = new NetworkReceiver(new NetworkStates() {
-            @Override
-            public void onConnectionChange(int ConnectionType, String connectionMessage) {
-                if (ConnectionType == Network.TYPE_NON) {
-                    chatSocket.getSocket().disconnect();
-
-                    Toast.makeText(getActivity(), "Lost connection", Toast.LENGTH_LONG).show();
-                } else {
-                    chatSocket.reConnect();
-
-                    Toast.makeText(getActivity(), connectionMessage, Toast.LENGTH_LONG).show();
-                }
-            }
-        });
-
 		messageListview.setAdapter(messageAdapter);
 		messageListview.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
 		messageListview.setStackFromBottom(true);
@@ -107,50 +93,44 @@ public class ChatFragment extends Fragment{
         socketManager();
 
 		messageField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int actionID, KeyEvent keyEvent) {
-                String message = messageField.getText().toString().trim();
+			@Override
+			public boolean onEditorAction(TextView textView, int actionID, KeyEvent keyEvent) {
+				String message = messageField.getText().toString().trim();
 
-                if (actionID == EditorInfo.IME_ACTION_SEND && !message.isEmpty()) {
-                    JSONObject msgJson = new JSONObject();
-                    try {
-                        msgJson.put("type", "msg");
-                        msgJson.put("msg", message);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
+				if (actionID == EditorInfo.IME_ACTION_SEND && !message.isEmpty()) {
+					JSONObject msgJson = new JSONObject();
+					try {
+						msgJson.put("type", "msg");
+						msgJson.put("msg", message);
+					} catch (JSONException e) {
+						e.printStackTrace();
+					}
 
-                    chatSocket.sendMessage(msgJson.toString());
-                    messageField.setText(null);
-                    return true;
-                }
+					chatSocket.sendMessage(msgJson.toString());
+					messageField.setText(null);
+					return true;
+				}
 
-                return false;
-            }
-        });
+				return false;
+			}
+		});
+
+		networkReceiver.setOnNetworkChangeListener(new NetworkReceiver.onNetworkChangeListener() {
+			@Override
+			public void onNetworkChange(int connection, String connectionMessage) {
+				if (connection == Network.TYPE_NON) {
+					Toast.makeText(getActivity(), connectionMessage, Toast.LENGTH_SHORT).show();
+				} else {
+					chatSocket.getSocket().reconnect();
+					Toast.makeText(getActivity(), connectionMessage, Toast.LENGTH_SHORT).show();
+				}
+			}
+		});
 
 		return view;
 	}
 
-    private BroadcastReceiver networkReceiver = new BroadcastReceiver() {
-        int connectionStatus = Network.getConnectivityStatus(getActivity());
-        String connectionMessage = Network.getStatusMessage(getActivity());
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (connectionStatus == Network.TYPE_NON) {
-                chatSocket.getSocket().disconnect();
-
-                Toast.makeText(getActivity(), "Lost connection", Toast.LENGTH_LONG).show();
-            } else {
-                chatSocket.reConnect();
-
-                Toast.makeText(getActivity(), connectionMessage, Toast.LENGTH_LONG).show();
-            }
-        }
-    };
-
-    @Override
+	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
 		((ChatActivity) activity).onSectionAttached(
@@ -170,6 +150,7 @@ public class ChatFragment extends Fragment{
 				}
 
 				chatSocket.sendMessage(authJson.toString());
+				messages.clear();
 			}
 
 			@Override

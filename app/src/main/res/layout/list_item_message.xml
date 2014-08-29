@@ -4,8 +4,11 @@
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:padding="16dp"
-              android:theme="@style/AT.Default">
+              android:theme="@style/AT.Default"
+              android:paddingLeft="16dp"
+              android:paddingTop="16dp"
+              android:paddingBottom="16dp"
+              android:paddingRight="0dp">
 
     <LinearLayout
         android:orientation="horizontal"
@@ -18,7 +21,7 @@
             android:layout_height="20dp"
             android:id="@+id/donationBadge"
             android:src="@drawable/badge"
-            android:visibility="gone"
+            android:visibility="visible"
             android:adjustViewBounds="false"
             android:layout_marginRight="2dp"/>
 
@@ -26,18 +29,29 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="{{USERNAME}}"
+            android:text="USERNAME"
             android:id="@+id/usernameHolder"
-            android:textStyle="bold"/>
+            android:textStyle="bold"
+            android:layout_weight="1"/>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/sendingState"
+            android:src="@android:drawable/ic_menu_send"
+            android:visibility="invisible"
+            />
     </LinearLayout>
 
     <TextView
         android:layout_marginTop="6dp"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="{{MESSAGE}}"
+        android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec consectetur nulla eget euismod tincidunt. Aenean luctus posuere metus, vitae blandit mi egestas sit amet."
         android:id="@+id/messageHolder"
         android:linksClickable="true"
-        android:autoLink="web"/>
+        android:autoLink="web"
+        android:layout_weight="1"
+        android:layout_marginRight="16dp"/>
 
 </LinearLayout>

@@ -21,7 +21,16 @@ public class ChatSocketHandler implements WebSocket.WebSocketConnectionObserver{
 	public ChatSocketHandler(SocketStates socketStates) {
 		this.socketStates = socketStates;
 
-        reConnect();
+		socketConnection = new WebSocketConnection();
+
+		try {
+			ServerURI = new URI(WSS_HOST);
+			socketConnection.connect(ServerURI, this);
+		} catch (URISyntaxException e) {
+			this.socketStates.onError(e);
+		} catch (WebSocketException e) {
+			this.socketStates.onError(e);
+		}
 	}
 
 	@Override
@@ -52,19 +61,6 @@ public class ChatSocketHandler implements WebSocket.WebSocketConnectionObserver{
 	public void sendMessage(String msg){
 		socketConnection.sendTextMessage(msg);
 	}
-
-    public void reConnect() {
-        socketConnection = new WebSocketConnection();
-
-        try {
-            ServerURI = new URI(WSS_HOST);
-            socketConnection.connect(ServerURI, this);
-        } catch (URISyntaxException e) {
-            this.socketStates.onError(e);
-        } catch (WebSocketException e) {
-            this.socketStates.onError(e);
-        }
-    }
 
     public WebSocketConnection getSocket(){
         return socketConnection;
