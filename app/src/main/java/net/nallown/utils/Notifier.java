@@ -13,7 +13,8 @@ import net.nallown.animetwist.R;
  */
 public class Notifier {
 
-	public static void showNotification(String title, String message, boolean alert, Context context){
+	public static void showNotification(String title, String message,
+	                                    boolean alert, Context context){
 		NotificationCompat.Builder mNotification =
 				new NotificationCompat.Builder(context)
 						.setSmallIcon(R.drawable.ic_launcher)

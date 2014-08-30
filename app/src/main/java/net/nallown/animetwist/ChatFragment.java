@@ -126,7 +126,10 @@ public class ChatFragment extends Fragment {
 				} else {
 					messageField.setEnabled(false);
 					messageField.setHint("No network connection...");
-					Notifier.showNotification("Connection lost...", "Anime Twist has lost connection.", false, getActivity());
+					Notifier.showNotification(
+						"Connection lost...", "Anime Twist has lost connection.",
+						false, getActivity()
+					);
 				}
 			}
 		});
@@ -174,15 +177,12 @@ public class ChatFragment extends Fragment {
 	                String msgUser = msgJson.optString("username");
 
 	                // Needs cleaning up!
-	                if (msg.contains(user.getUsername())
+	                if (msg.toLowerCase().contains(user.getUsername().toLowerCase())
 	                && !msgUser.toLowerCase().equals(user.getUsername().toLowerCase())
-			        && pausing)
-	                {
+			        && pausing) {
 		                Notifier.showNotification(
 			                msgUser + " mentioned you",
-			                msg,
-			                true,
-			                getActivity()
+			                msg, true, getActivity()
 		                );
 	                }
 
