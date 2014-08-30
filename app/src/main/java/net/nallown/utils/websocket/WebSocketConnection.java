@@ -18,19 +18,20 @@
 
 package net.nallown.utils.websocket;
 
+import android.net.SSLCertificateSocketFactory;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
+import android.util.Log;
+
+import net.nallown.utils.websocket.WebSocket.WebSocketConnectionObserver.WebSocketCloseNotification;
+
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.net.Socket;
 import java.net.URI;
 
 import javax.net.SocketFactory;
-
-import android.net.SSLCertificateSocketFactory;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
-import android.util.Log;
-import net.nallown.utils.websocket.WebSocket.WebSocketConnectionObserver.WebSocketCloseNotification;
 
 public class WebSocketConnection implements WebSocket {
 	private static final String TAG = WebSocketConnection.class.getName();
@@ -527,7 +528,7 @@ public class WebSocketConnection implements WebSocket {
 		@Override
 		public void handleMessage(Message message) {
 			WebSocketConnection webSocketConnection = mWebSocketConnection.get();
-			if (webSocketConnection != null && webSocketConnection.isConnected()) {
+			if (webSocketConnection != null) {
 				webSocketConnection.handleMessage(message);
 			}
 		}

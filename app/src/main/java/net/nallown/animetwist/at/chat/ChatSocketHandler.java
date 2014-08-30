@@ -1,13 +1,12 @@
 package net.nallown.animetwist.at.chat;
 
 import net.nallown.utils.States.SocketStates;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-
 import net.nallown.utils.websocket.WebSocket;
 import net.nallown.utils.websocket.WebSocketConnection;
 import net.nallown.utils.websocket.WebSocketException;
+
+import java.net.URI;
+import java.net.URISyntaxException;
 
 /**
  * Created by Nasir on 28/08/2014.
@@ -21,16 +20,7 @@ public class ChatSocketHandler implements WebSocket.WebSocketConnectionObserver{
 	public ChatSocketHandler(SocketStates socketStates) {
 		this.socketStates = socketStates;
 
-		socketConnection = new WebSocketConnection();
-
-		try {
-			ServerURI = new URI(WSS_HOST);
-			socketConnection.connect(ServerURI, this);
-		} catch (URISyntaxException e) {
-			this.socketStates.onError(e);
-		} catch (WebSocketException e) {
-			this.socketStates.onError(e);
-		}
+		reConnect();
 	}
 
 	@Override
@@ -62,7 +52,21 @@ public class ChatSocketHandler implements WebSocket.WebSocketConnectionObserver{
 		socketConnection.sendTextMessage(msg);
 	}
 
+	public void reConnect() {
+		socketConnection = new WebSocketConnection();
+
+		try {
+			ServerURI = new URI(WSS_HOST);
+			socketConnection.connect(ServerURI, this);
+		} catch (URISyntaxException e) {
+			this.socketStates.onError(e);
+		} catch (WebSocketException e) {
+			this.socketStates.onError(e);
+		}
+	}
+
     public WebSocketConnection getSocket(){
         return socketConnection;
     }
+
 }

@@ -2,9 +2,6 @@ package net.nallown.animetwist;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -15,21 +12,20 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import net.nallown.utils.NetworkReceiver;
-import net.nallown.utils.States.SocketStates;
 import net.nallown.animetwist.at.User;
 import net.nallown.animetwist.at.chat.ChatSocketHandler;
 import net.nallown.animetwist.at.chat.Message;
+import net.nallown.utils.Network;
+import net.nallown.utils.NetworkReceiver;
+import net.nallown.utils.Notifier;
+import net.nallown.utils.States.SocketStates;
+import net.nallown.utils.websocket.WebSocket;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-
-import net.nallown.utils.Network;
-import net.nallown.utils.websocket.WebSocket;
 
 /**
  * Created by Nasir on 26/08/2014.
@@ -97,7 +93,11 @@ public class ChatFragment extends Fragment {
 			public boolean onEditorAction(TextView textView, int actionID, KeyEvent keyEvent) {
 				String message = messageField.getText().toString().trim();
 
-				if (actionID == EditorInfo.IME_ACTION_SEND && !message.isEmpty()) {
+				if (
+					( actionID == EditorInfo.IME_ACTION_SEND
+					|| keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER )
+					&& !message.isEmpty())
+				{
 					JSONObject msgJson = new JSONObject();
 					try {
 						msgJson.put("type", "msg");
@@ -117,12 +117,15 @@ public class ChatFragment extends Fragment {
 
 		networkReceiver.setOnNetworkChangeListener(new NetworkReceiver.onNetworkChangeListener() {
 			@Override
-			public void onNetworkChange(int connection, String connectionMessage) {
-				if (connection == Network.TYPE_NON) {
-					Toast.makeText(getActivity(), connectionMessage, Toast.LENGTH_SHORT).show();
+			public void onNetworkChange(boolean connected, String connectionMessage) {
+				if (connected) {
+					chatSocket.reConnect();
+					messageField.setEnabled(true);
+					messageField.setHint("...");
 				} else {
-					chatSocket.getSocket().reconnect();
-					Toast.makeText(getActivity(), connectionMessage, Toast.LENGTH_SHORT).show();
+					messageField.setEnabled(false);
+					messageField.setHint("No network connection...");
+					Notifier.showNotification("Connection lost...", "Anime Twist has lost connection.", getActivity());
 				}
 			}
 		});
@@ -138,6 +141,10 @@ public class ChatFragment extends Fragment {
 	}
 
 	private void socketManager(){
+		if (Network.getConnectivityStatus(getActivity()) == Network.TYPE_NON) {
+			return;
+		}
+
 		chatSocket = new ChatSocketHandler(new SocketStates() {
 			@Override
 			public void onOpen() {

@@ -16,8 +16,14 @@ public class NetworkReceiver extends BroadcastReceiver {
         int connectionStatus = Network.getConnectivityStatus(context);
         String connectionMessage = Network.getStatusMessage(context);
 
-	    if (networkStates != null)
-	        networkStates.onNetworkChange(connectionStatus, connectionMessage);
+	    if (networkStates != null) {
+		    if (connectionStatus == Network.TYPE_NON) {
+			    networkStates.onNetworkChange(false, connectionMessage);
+		    } else {
+			    networkStates.onNetworkChange(true, connectionMessage);
+		    }
+
+	    }
     }
 
 	public void setOnNetworkChangeListener(onNetworkChangeListener networkChangeListener){
@@ -25,6 +31,6 @@ public class NetworkReceiver extends BroadcastReceiver {
 	}
 
 	public static interface onNetworkChangeListener {
-		public void onNetworkChange(int connection, String connectionMessage);
+		public void onNetworkChange(boolean connected, String connectionMessage);
 	}
 }
