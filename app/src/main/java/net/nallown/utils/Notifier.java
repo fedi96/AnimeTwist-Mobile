@@ -2,6 +2,8 @@ package net.nallown.utils;
 
 import android.app.NotificationManager;
 import android.content.Context;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 
 import net.nallown.animetwist.R;
@@ -11,13 +13,17 @@ import net.nallown.animetwist.R;
  */
 public class Notifier {
 
-	public static void showNotification(String title, String message, Context context){
-		NotificationCompat.Builder mNotification=
+	public static void showNotification(String title, String message, boolean alert, Context context){
+		NotificationCompat.Builder mNotification =
 				new NotificationCompat.Builder(context)
 						.setSmallIcon(R.drawable.ic_launcher)
 						.setContentTitle(title)
 						.setContentText(message);
 
+		if (alert) {
+			Uri alertUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+			mNotification.setSound(alertUri);
+		}
 
 		NotificationManager mNotificationManager =
 				(NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);

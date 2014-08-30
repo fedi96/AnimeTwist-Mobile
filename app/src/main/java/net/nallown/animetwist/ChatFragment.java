@@ -44,6 +44,8 @@ public class ChatFragment extends Fragment {
 	ChatSocketHandler chatSocket = null;
 	NetworkReceiver networkReceiver = new NetworkReceiver();
 
+	boolean pausing = false;
+
 	View view;
 
 	/**
@@ -125,7 +127,7 @@ public class ChatFragment extends Fragment {
 				} else {
 					messageField.setEnabled(false);
 					messageField.setHint("No network connection...");
-					Notifier.showNotification("Connection lost...", "Anime Twist has lost connection.", getActivity());
+					Notifier.showNotification("Connection lost...", "Anime Twist has lost connection.", false, getActivity());
 				}
 			}
 		});
@@ -173,6 +175,21 @@ public class ChatFragment extends Fragment {
 
                 try {
                     JSONObject msgJson = new JSONObject(payload);
+					String msg = msgJson.optString("msg");
+	                String msgUser = msgJson.optString("username");
+
+	                // Needs cleaning up!
+	                if (msg.contains(user.getUsername())
+	                && !msgUser.toLowerCase().equals(user.getUsername().toLowerCase())
+			        && pausing)
+	                {
+		                Notifier.showNotification(
+			                msgUser + " mentioned you",
+			                msg,
+			                true,
+			                getActivity()
+		                );
+	                }
 
                     if (!msgJson.has("auth")) {
                         messages.add(Message.parseMessage(msgJson));
@@ -194,4 +211,15 @@ public class ChatFragment extends Fragment {
 		});
 	}
 
+	@Override
+	public void onPause() {
+		super.onPause();
+		pausing = true;
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		pausing = false;
+	}
 }
