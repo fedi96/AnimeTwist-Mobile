@@ -16,7 +16,6 @@ import android.widget.TextView;
 import net.nallown.animetwist.at.User;
 import net.nallown.animetwist.at.chat.ChatSocketHandler;
 import net.nallown.animetwist.at.chat.Message;
-import net.nallown.utils.Network;
 import net.nallown.utils.NetworkReceiver;
 import net.nallown.utils.Notifier;
 import net.nallown.utils.States.SocketStates;
@@ -119,7 +118,7 @@ public class ChatFragment extends Fragment {
 
 		networkReceiver.setOnNetworkChangeListener(new NetworkReceiver.onNetworkChangeListener() {
 			@Override
-			public void onNetworkChange(boolean connected, String connectionMessage) {
+			public void onNetworkChange(boolean connected) {
 				if (connected) {
 					chatSocket.reConnect();
 					messageField.setEnabled(true);
@@ -143,10 +142,6 @@ public class ChatFragment extends Fragment {
 	}
 
 	private void socketManager(){
-		if (Network.getConnectivityStatus(getActivity()) == Network.TYPE_NON) {
-			return;
-		}
-
 		chatSocket = new ChatSocketHandler(new SocketStates() {
 			@Override
 			public void onOpen() {
