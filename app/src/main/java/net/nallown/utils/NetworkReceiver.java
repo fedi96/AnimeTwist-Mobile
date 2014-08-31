@@ -3,7 +3,7 @@ package net.nallown.utils;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
+import android.util.Log;
 
 /**
  * Created by root on 28/08/14.
@@ -11,16 +11,19 @@ import android.net.ConnectivityManager;
 public class NetworkReceiver extends BroadcastReceiver {
 
 	private static onNetworkChangeListener networkStates;
-	private static boolean connected = false;
+	private static boolean currentNetworkStatus = true;
 
     @Override
     public void onReceive(Context context, Intent intent) {
-	    if (intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
-		    if (connected != Network.isOnline(context, intent)) {
-				networkStates.onNetworkChange(Network.isOnline(context, intent));
-			    connected = Network.isOnline(context, intent);
-		    }
+	    boolean networkStatus = Network.isOnline(context, intent);
+	    if (currentNetworkStatus == networkStatus) {
+		    return;
 	    }
+
+	    networkStates.onNetworkChange(networkStatus);
+	    Log.e("NetworkReceiver", "Network Changed");
+
+	    currentNetworkStatus = networkStatus;
     }
 
 	public void setOnNetworkChangeListener(onNetworkChangeListener networkChangeListener){

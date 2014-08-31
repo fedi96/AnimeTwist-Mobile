@@ -56,10 +56,14 @@ public class MessageAdapter extends ArrayAdapter<Message>{
 
 		// RESET
 		usernameField.setTextColor(getContext().getResources().getColor(R.color.gray_light));
+		messageField.setTextColor(getContext().getResources().getColor(R.color.gray_light));
 		donationBadge.setVisibility(View.GONE);
 
 		if (msg.isAdmin()) {
 			usernameField.setTextColor(getContext().getResources().getColor(R.color.red));
+		} else if (msg.getUser().equals("Notice")) {
+			usernameField.setTextColor(getContext().getResources().getColor(R.color.gray));
+			messageField.setTextColor(getContext().getResources().getColor(R.color.gray));
 		}
 
 		if (msg.getDonation()) {

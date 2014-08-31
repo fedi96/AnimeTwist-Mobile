@@ -19,7 +19,7 @@ import net.nallown.animetwist.at.chat.Message;
 import net.nallown.utils.NetworkReceiver;
 import net.nallown.utils.Notifier;
 import net.nallown.utils.States.SocketStates;
-import net.nallown.utils.websocket.WebSocket;
+import net.nallown.utils.websocket.WebSocket.WebSocketConnectionObserver.WebSocketCloseNotification;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -44,6 +44,8 @@ public class ChatFragment extends Fragment {
 	NetworkReceiver networkReceiver = new NetworkReceiver();
 
 	boolean pausing = false;
+	boolean clearedBuffer = false;
+	int messageCount = 0;
 
 	View view;
 
@@ -126,6 +128,10 @@ public class ChatFragment extends Fragment {
 				} else {
 					messageField.setEnabled(false);
 					messageField.setHint("No network connection...");
+
+					messages.add(Message.notify("Lost network connection"));
+
+					messageAdapter.notifyDataSetChanged();
 					Notifier.showNotification(
 						"Connection lost...", "Anime Twist has lost connection.",
 						false, getActivity()
@@ -155,14 +161,15 @@ public class ChatFragment extends Fragment {
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
-
 				chatSocket.sendMessage(authJson.toString());
-				messages.clear();
+
+				messageCount = 0;
 			}
 
 			@Override
-			public void onClose(WebSocket.WebSocketConnectionObserver.WebSocketCloseNotification code, String reason) {
-				Log.i(LOG_TAG, "Code: " + code + "; Reason: " + reason);
+			public void onClose(WebSocketCloseNotification code, String reason) {
+				Notifier.showNotification("Socket Closed", reason, true, getActivity());
+				Log.e(LOG_TAG, "socket closed");
 			}
 
 			@Override
@@ -176,7 +183,7 @@ public class ChatFragment extends Fragment {
 					String msg = msgJson.optString("msg");
 	                String msgUser = msgJson.optString("username");
 
-	                // Needs cleaning up!
+	                // Needs option amd keywords
 	                if (msg.toLowerCase().contains(user.getUsername().toLowerCase())
 	                && !msgUser.toLowerCase().equals(user.getUsername().toLowerCase())
 			        && pausing) {
@@ -187,7 +194,12 @@ public class ChatFragment extends Fragment {
 	                }
 
                     if (!msgJson.has("auth")) {
-                        messages.add(Message.parseMessage(msgJson));
+						if (messages.size() >= 40 && messageCount < 40) {
+		                    messageCount++;
+		                    return;
+	                    }
+
+	                    messages.add(Message.parseMessage(msgJson));
                         messageAdapter.notifyDataSetChanged();
                     }
                 } catch (JSONException e) {

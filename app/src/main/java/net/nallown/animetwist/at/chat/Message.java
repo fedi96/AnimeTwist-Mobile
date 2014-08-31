@@ -20,6 +20,13 @@ public final class Message {
 		this.admin = admin;
 	}
 
+	public Message(String message){
+		this.message = message;
+		this.username = "Notice";
+		this.donation = false;
+		this.admin = false;
+	}
+
 	public static Message parseMessage(JSONObject msgJson) {
 		String username = msgJson.optString("username");
 		String message = Html.fromHtml(msgJson.optString("msg")).toString();
@@ -27,6 +34,10 @@ public final class Message {
 		boolean op = (msgJson.optInt("op") == 1);
 
 		return new Message(username, message, op, donation);
+	}
+
+	public static Message notify(String message) {
+		return new Message(message);
 	}
 
 	public String getMessage() {
