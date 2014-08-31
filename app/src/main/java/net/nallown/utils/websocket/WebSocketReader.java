@@ -18,18 +18,19 @@
 
 package net.nallown.utils.websocket;
 
+import android.os.Handler;
+import android.os.Message;
+import android.util.Log;
+import android.util.Pair;
+
+import net.nallown.utils.websocket.WebSocketMessage.WebSocketCloseCode;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
-
-import android.os.Handler;
-import android.os.Message;
-import android.util.Log;
-import android.util.Pair;
-import net.nallown.utils.websocket.WebSocketMessage.WebSocketCloseCode;
 
 /**
  * WebSocket reader, the receiving leg of a WebSockets connection.
@@ -40,42 +41,24 @@ import net.nallown.utils.websocket.WebSocketMessage.WebSocketCloseCode;
  */
 public class WebSocketReader extends Thread {
 	private static final String TAG = WebSocketReader.class.getCanonicalName();
-
-	private static enum ReaderState { 
-		STATE_CLOSED,
-		STATE_CONNECTING,
-		STATE_CLOSING,
-		STATE_OPEN
-	}
-
 	private final Handler mWebSocketConnectionHandler;
 	private final Socket mSocket;
-	private InputStream mInputStream;
 	private final WebSocketOptions mWebSocketOptions;
-
-	private volatile boolean mStopped = false;
-
-
 	private final byte[] mNetworkBuffer;
 	private final ByteBuffer mApplicationBuffer;
+	private InputStream mInputStream;
+	private volatile boolean mStopped = false;
 	private NoCopyByteArrayOutputStream mMessagePayload;
-
 	private ReaderState mState;
-
 	private boolean mInsideMessage = false;
 	private int mMessageOpcode;
-
 	private WebSocketFrameHeader mFrameHeader;
 	private Utf8Validator mUTF8Validator = new Utf8Validator();
-
-
-
-
 	/**
 	 * Create new WebSockets background reader.
 	 *
-	 * @param master    The message handler of master (foreground thread).
-	 * @param socket    The socket channel created on foreground thread.
+	 * @param master The message handler of master (foreground thread).
+	 * @param socket The socket channel created on foreground thread.
 	 */
 	public WebSocketReader(Handler master, Socket socket, WebSocketOptions options, String threadName) {
 		super(threadName);
@@ -95,7 +78,6 @@ public class WebSocketReader extends Thread {
 		Log.d(TAG, "WebSocket reader created.");
 	}
 
-
 	/**
 	 * Graceful shutdown of background reader thread (called from master).
 	 */
@@ -106,12 +88,11 @@ public class WebSocketReader extends Thread {
 		Log.d(TAG, "quit");
 	}
 
-
 	/**
 	 * Notify the master (foreground thread) of WebSockets message received
 	 * and unwrapped.
 	 *
-	 * @param message       Message to send to master.
+	 * @param message Message to send to master.
 	 */
 	protected void notify(Object message) {
 
@@ -119,7 +100,6 @@ public class WebSocketReader extends Thread {
 		msg.obj = message;
 		mWebSocketConnectionHandler.sendMessage(msg);
 	}
-
 
 	/**
 	 * Process incoming WebSockets data (after handshake).
@@ -200,23 +180,23 @@ public class WebSocketReader extends Thread {
 					int i = 2;
 					long payload_len = 0;
 					if (payload_len1 == 126) {
-						payload_len = ((0xff & mApplicationBuffer.get(i)) << 8) | (0xff & mApplicationBuffer.get(i+1));
+						payload_len = ((0xff & mApplicationBuffer.get(i)) << 8) | (0xff & mApplicationBuffer.get(i + 1));
 						if (payload_len < 126) {
 							throw new WebSocketException("invalid data frame length (not using minimal length encoding)");
 						}
 						i += 2;
 					} else if (payload_len1 == 127) {
-						if ((0x80 & mApplicationBuffer.get(i+0)) != 0) {
+						if ((0x80 & mApplicationBuffer.get(i + 0)) != 0) {
 							throw new WebSocketException("invalid data frame length (> 2^63)");
 						}
-						payload_len = ((0xff & mApplicationBuffer.get(i+0)) << 56) |
-								((0xff & mApplicationBuffer.get(i+1)) << 48) |
-								((0xff & mApplicationBuffer.get(i+2)) << 40) |
-								((0xff & mApplicationBuffer.get(i+3)) << 32) |
-								((0xff & mApplicationBuffer.get(i+4)) << 24) |
-								((0xff & mApplicationBuffer.get(i+5)) << 16) |
-								((0xff & mApplicationBuffer.get(i+6)) <<  8) |
-								((0xff & mApplicationBuffer.get(i+7))      );
+						payload_len = ((0xff & mApplicationBuffer.get(i + 0)) << 56) |
+								((0xff & mApplicationBuffer.get(i + 1)) << 48) |
+								((0xff & mApplicationBuffer.get(i + 2)) << 40) |
+								((0xff & mApplicationBuffer.get(i + 3)) << 32) |
+								((0xff & mApplicationBuffer.get(i + 4)) << 24) |
+								((0xff & mApplicationBuffer.get(i + 5)) << 16) |
+								((0xff & mApplicationBuffer.get(i + 6)) << 8) |
+								((0xff & mApplicationBuffer.get(i + 7)));
 						if (payload_len < 65536) {
 							throw new WebSocketException("invalid data frame length (not using minimal length encoding)");
 						}
@@ -246,7 +226,7 @@ public class WebSocketReader extends Thread {
 						}
 						mFrameHeader.setMask(mask);
 
-						i += 4;						
+						i += 4;
 					} else {
 						mFrameHeader.setMask(null);
 					}
@@ -419,17 +399,15 @@ public class WebSocketReader extends Thread {
 		}
 	}
 
-
 	/**
 	 * WebSockets handshake reply from server received, default notifies master.
-	 * 
-	 * @param success	Success handshake flag
+	 *
+	 * @param success Success handshake flag
 	 */
 	protected void onHandshake(boolean success) {
 
 		notify(new WebSocketMessage.ServerHandshake(success));
 	}
-
 
 	/**
 	 * WebSockets close received, default notifies master.
@@ -439,67 +417,61 @@ public class WebSocketReader extends Thread {
 		notify(new WebSocketMessage.Close(code, reason));
 	}
 
-
 	/**
 	 * WebSockets ping received, default notifies master.
 	 *
-	 * @param payload    Ping payload or null.
+	 * @param payload Ping payload or null.
 	 */
 	protected void onPing(byte[] payload) {
 
 		notify(new WebSocketMessage.Ping(payload));
 	}
 
-
 	/**
 	 * WebSockets pong received, default notifies master.
 	 *
-	 * @param payload    Pong payload or null.
+	 * @param payload Pong payload or null.
 	 */
 	protected void onPong(byte[] payload) {
 
 		notify(new WebSocketMessage.Pong(payload));
 	}
 
-
 	/**
 	 * WebSockets text message received, default notifies master.
 	 * This will only be called when the option receiveTextMessagesRaw
 	 * HAS NOT been set.
 	 *
-	 * @param payload    Text message payload as Java String decoded
-	 *                   from raw UTF-8 payload or null (empty payload).
+	 * @param payload Text message payload as Java String decoded
+	 *                from raw UTF-8 payload or null (empty payload).
 	 */
 	protected void onTextMessage(String payload) {
 
 		notify(new WebSocketMessage.TextMessage(payload));
 	}
 
-
 	/**
 	 * WebSockets text message received, default notifies master.
 	 * This will only be called when the option receiveTextMessagesRaw
 	 * HAS been set.
 	 *
-	 * @param payload    Text message payload as raw UTF-8 octets or
-	 *                   null (empty payload).
+	 * @param payload Text message payload as raw UTF-8 octets or
+	 *                null (empty payload).
 	 */
 	protected void onRawTextMessage(byte[] payload) {
 
 		notify(new WebSocketMessage.RawTextMessage(payload));
 	}
 
-
 	/**
 	 * WebSockets binary message received, default notifies master.
 	 *
-	 * @param payload    Binary message payload or null (empty payload).
+	 * @param payload Binary message payload or null (empty payload).
 	 */
 	protected void onBinaryMessage(byte[] payload) {
 
 		notify(new WebSocketMessage.BinaryMessage(payload));
 	}
-
 
 	/**
 	 * Process WebSockets handshake received from server.
@@ -508,10 +480,10 @@ public class WebSocketReader extends Thread {
 
 		boolean res = false;
 		for (int pos = mApplicationBuffer.position() - 4; pos >= 0; --pos) {
-			if (mApplicationBuffer.get(pos+0) == 0x0d &&
-					mApplicationBuffer.get(pos+1) == 0x0a &&
-					mApplicationBuffer.get(pos+2) == 0x0d &&
-					mApplicationBuffer.get(pos+3) == 0x0a) {
+			if (mApplicationBuffer.get(pos + 0) == 0x0d &&
+					mApplicationBuffer.get(pos + 1) == 0x0a &&
+					mApplicationBuffer.get(pos + 2) == 0x0d &&
+					mApplicationBuffer.get(pos + 3) == 0x0a) {
 
 				/// \todo process & verify handshake from server
 				/// \todo forward subprotocol, if any
@@ -588,34 +560,32 @@ public class WebSocketReader extends Thread {
 		return new Pair<Integer, String>(statusCode, statusMessage);
 	}
 
-
 	/**
 	 * Consume data buffered in mFrameBuffer.
 	 */
 	private boolean consumeData() throws Exception {
 		switch (mState) {
-		case STATE_OPEN:
-		case STATE_CLOSING:
-			return processData();
-		case STATE_CLOSED:
-			return false;
-		case STATE_CONNECTING:
-			return processHandshake();
-		default:
-			return false;
+			case STATE_OPEN:
+			case STATE_CLOSING:
+				return processData();
+			case STATE_CLOSED:
+				return false;
+			case STATE_CONNECTING:
+				return processHandshake();
+			default:
+				return false;
 		}
 	}
-
 
 	/**
 	 * Run the background reader thread loop.
 	 */
 	@Override
-	public void run() {		
+	public void run() {
 		synchronized (this) {
 			notifyAll();
 		}
-		
+
 		InputStream inputStream = null;
 		try {
 			inputStream = mSocket.getInputStream();
@@ -645,7 +615,7 @@ public class WebSocketReader extends Thread {
 				} else {
 					Log.e(TAG, "WebSocketReader read() failed.");
 				}
-				
+
 			} catch (WebSocketException e) {
 				Log.d(TAG, "run() : WebSocketException (" + e.toString() + ")");
 
@@ -658,7 +628,7 @@ public class WebSocketReader extends Thread {
 				notify(new WebSocketMessage.ConnectionLost());
 			} catch (IOException e) {
 				Log.d(TAG, "run() : IOException (" + e.toString() + ")");
-				
+
 				notify(new WebSocketMessage.ConnectionLost());
 			} catch (Exception e) {
 				Log.d(TAG, "run() : Exception (" + e.toString() + ")");
@@ -670,5 +640,13 @@ public class WebSocketReader extends Thread {
 
 
 		Log.d(TAG, "WebSocket reader ended.");
+	}
+
+
+	private static enum ReaderState {
+		STATE_CLOSED,
+		STATE_CONNECTING,
+		STATE_CLOSING,
+		STATE_OPEN
 	}
 }

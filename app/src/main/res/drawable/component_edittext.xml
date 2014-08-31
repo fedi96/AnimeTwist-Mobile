@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:state_window_focused="false" android:state_enabled="true" android:drawable="@drawable/components_textfield_default_holo_dark" />
-    <item android:state_window_focused="false" android:state_enabled="false" android:drawable="@drawable/components_textfield_disabled_holo_dark" />
-    <item android:state_enabled="true" android:state_focused="true" android:drawable="@drawable/components_textfield_activated_holo_dark" />
-    <item android:state_enabled="true" android:state_activated="true" android:drawable="@drawable/components_textfield_focused_holo_dark" />
-    <item android:state_enabled="true" android:drawable="@drawable/components_textfield_default_holo_dark" />
-    <item android:state_focused="true" android:drawable="@drawable/components_textfield_disabled_focused_holo_dark" />
-    <item android:drawable="@drawable/components_textfield_disabled_holo_dark" />
+    <item android:drawable="@drawable/components_textfield_default_holo_dark" android:state_enabled="true" android:state_window_focused="false"/>
+    <item android:drawable="@drawable/components_textfield_disabled_holo_dark" android:state_enabled="false" android:state_window_focused="false"/>
+    <item android:drawable="@drawable/components_textfield_activated_holo_dark" android:state_enabled="true" android:state_focused="true"/>
+    <item android:drawable="@drawable/components_textfield_focused_holo_dark" android:state_activated="true" android:state_enabled="true"/>
+    <item android:drawable="@drawable/components_textfield_default_holo_dark" android:state_enabled="true"/>
+    <item android:drawable="@drawable/components_textfield_disabled_focused_holo_dark" android:state_focused="true"/>
+    <item android:drawable="@drawable/components_textfield_disabled_holo_dark"/>
 </selector>

@@ -28,7 +28,7 @@ import java.net.URI;
 public class WebSocketMessage {
 	public static class WebSocketCloseCode {
 		public static final int NORMAL = 1000;
-		public static final int ENDPOINT_GOING_AWAY = 1001;		 
+		public static final int ENDPOINT_GOING_AWAY = 1001;
 		public static final int ENDPOINT_PROTOCOL_ERROR = 1002;
 		public static final int ENDPOINT_UNSUPPORTED_DATA_TYPE = 1003;
 		public static final int RESERVED = 1004;
@@ -58,7 +58,6 @@ public class WebSocketMessage {
 		private final String[] mSubprotocols;
 
 
-
 		ClientHandshake(URI uri) {
 			this.mURI = uri;
 			this.mOrigin = null;
@@ -72,13 +71,14 @@ public class WebSocketMessage {
 		}
 
 
-
 		public URI getURI() {
 			return mURI;
 		}
+
 		public URI getOrigin() {
 			return mOrigin;
 		}
+
 		public String[] getSubprotocols() {
 			return mSubprotocols;
 		}
@@ -183,6 +183,7 @@ public class WebSocketMessage {
 		public int getCode() {
 			return mCode;
 		}
+
 		public String getReason() {
 			return mReason;
 		}

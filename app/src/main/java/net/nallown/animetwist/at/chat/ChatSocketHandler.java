@@ -11,7 +11,7 @@ import java.net.URISyntaxException;
 /**
  * Created by Nasir on 28/08/2014.
  */
-public class ChatSocketHandler implements WebSocket.WebSocketConnectionObserver{
+public class ChatSocketHandler implements WebSocket.WebSocketConnectionObserver {
 	private SocketStates socketStates = null;
 	private WebSocketConnection socketConnection;
 	private URI ServerURI;
@@ -48,7 +48,7 @@ public class ChatSocketHandler implements WebSocket.WebSocketConnectionObserver{
 		socketStates.onBinaryMessage(payload);
 	}
 
-	public void sendMessage(String msg){
+	public void sendMessage(String msg) {
 		socketConnection.sendTextMessage(msg);
 	}
 
@@ -65,8 +65,8 @@ public class ChatSocketHandler implements WebSocket.WebSocketConnectionObserver{
 		}
 	}
 
-    public WebSocketConnection getSocket(){
-        return socketConnection;
-    }
+	public WebSocketConnection getSocket() {
+		return socketConnection;
+	}
 
 }

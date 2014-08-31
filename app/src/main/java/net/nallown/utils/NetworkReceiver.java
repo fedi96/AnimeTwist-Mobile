@@ -13,20 +13,20 @@ public class NetworkReceiver extends BroadcastReceiver {
 	private static onNetworkChangeListener networkStates;
 	private static boolean currentNetworkStatus = true;
 
-    @Override
-    public void onReceive(Context context, Intent intent) {
-	    boolean networkStatus = Network.isOnline(context, intent);
-	    if (currentNetworkStatus == networkStatus) {
-		    return;
-	    }
+	@Override
+	public void onReceive(Context context, Intent intent) {
+		boolean networkStatus = Network.isOnline(context, intent);
+		if (currentNetworkStatus == networkStatus) {
+			return;
+		}
 
-	    networkStates.onNetworkChange(networkStatus);
-	    Log.e("NetworkReceiver", "Network Changed");
+		networkStates.onNetworkChange(networkStatus);
+		Log.e("NetworkReceiver", "Network Changed");
 
-	    currentNetworkStatus = networkStatus;
-    }
+		currentNetworkStatus = networkStatus;
+	}
 
-	public void setOnNetworkChangeListener(onNetworkChangeListener networkChangeListener){
+	public void setOnNetworkChangeListener(onNetworkChangeListener networkChangeListener) {
 		networkStates = networkChangeListener;
 	}
 

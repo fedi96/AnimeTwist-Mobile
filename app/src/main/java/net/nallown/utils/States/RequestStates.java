@@ -6,7 +6,9 @@ package net.nallown.utils.States;
 public abstract class RequestStates {
 
 	public abstract void onError(Exception e);
+
 	public abstract void onFinish(String result);
+
 	public abstract void onStart();
 
 }

@@ -1,30 +1,30 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="net.nallown.animetwist.ChatActivity$PlaceholderFragment"
-    android:orientation="vertical">
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              tools:context="net.nallown.animetwist.ChatActivity$PlaceholderFragment">
 
     <ListView
+        android:id="@+id/messages_listview"
         android:layout_width="fill_parent"
         android:layout_height="match_parent"
-        android:id="@+id/messages_listview"
-        android:divider="@color/red_dark_extreme"
-        android:dividerHeight="1dp"
         android:layout_gravity="center_horizontal|top"
-        android:layout_weight="1"/>
+        android:layout_weight="1"
+        android:divider="@color/red_dark_extreme"
+        android:dividerHeight="1dp"/>
 
     <EditText
+        android:id="@+id/messageInput"
+        style="@style/EditText.Message"
         android:layout_width="match_parent"
         android:layout_height="45dp"
-        android:id="@+id/messageInput"
-        android:singleLine="false"
-        android:inputType="text"
-        android:imeOptions="actionSend"
-        android:hint="..."
-        style="@style/EditText.Message"
         android:layout_marginTop="1dp"
-        android:autoText="true"/>
+        android:autoText="true"
+        android:hint="..."
+        android:imeOptions="actionSend"
+        android:inputType="text"
+        android:singleLine="false"/>
 
     <!--https://developer.android.com/training/keyboard-input/style.html#Action-->
 </LinearLayout>

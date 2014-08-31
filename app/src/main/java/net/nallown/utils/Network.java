@@ -12,7 +12,7 @@ public class Network {
 
 	public static boolean isOnline(Context c, Intent i) {
 		ConnectivityManager cm =
-				(ConnectivityManager)c.getSystemService(Context.CONNECTIVITY_SERVICE);
+				(ConnectivityManager) c.getSystemService(Context.CONNECTIVITY_SERVICE);
 
 		NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
 		boolean isConnected = activeNetwork != null &&

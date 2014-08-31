@@ -18,6 +18,12 @@
 
 package net.nallown.utils.websocket;
 
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
+import android.util.Base64;
+import android.util.Log;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.ref.WeakReference;
@@ -25,12 +31,6 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.util.Random;
-
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
-import android.util.Base64;
-import android.util.Log;
 
 /**
  * WebSocket writer, the sending leg of a WebSockets connection.
@@ -42,7 +42,7 @@ import android.util.Log;
  */
 public class WebSocketWriter extends Thread {
 	private static final String TAG = WebSocketWriter.class.getCanonicalName();
-	
+
 	private static final int WEB_SOCKETS_VERSION = 13;
 	private static final String CRLF = "\r\n";
 
@@ -60,11 +60,11 @@ public class WebSocketWriter extends Thread {
 	/**
 	 * Create new WebSockets background writer.
 	 *
-	 * @param looper    The message looper of the background thread on which
-	 *                  this object is running.
-	 * @param master    The message handler of master (foreground thread).
-	 * @param socket    The socket channel created on foreground thread.
-	 * @param options   WebSockets connection options.
+	 * @param looper  The message looper of the background thread on which
+	 *                this object is running.
+	 * @param master  The message handler of master (foreground thread).
+	 * @param socket  The socket channel created on foreground thread.
+	 * @param options WebSockets connection options.
 	 */
 	public WebSocketWriter(Handler master, Socket socket, WebSocketOptions options, String threadName) {
 		super(threadName);
@@ -72,7 +72,7 @@ public class WebSocketWriter extends Thread {
 		this.mWebSocketConnectionHandler = master;
 		this.mWebSocketOptions = options;
 		this.mSocket = socket;
-		
+
 		this.mApplicationBuffer = ByteBuffer.allocate(options.getMaxFramePayloadSize() + 14);
 
 		Log.d(TAG, "WebSocket writer created.");
@@ -84,10 +84,10 @@ public class WebSocketWriter extends Thread {
 	 * (running on background thread) send a WebSocket message on the
 	 * underlying TCP.
 	 *
-	 * @param message       Message to send to WebSockets writer. An instance of the message
-	 *                      classes inside WebSocketMessage or another type which then needs
-	 *                      to be handled within processAppMessage() (in a class derived from
-	 *                      this class).
+	 * @param message Message to send to WebSockets writer. An instance of the message
+	 *                classes inside WebSocketMessage or another type which then needs
+	 *                to be handled within processAppMessage() (in a class derived from
+	 *                this class).
 	 */
 	public void forward(Object message) {
 		Message msg = mHandler.obtainMessage();
@@ -99,7 +99,7 @@ public class WebSocketWriter extends Thread {
 	/**
 	 * Notify the master (foreground thread).
 	 *
-	 * @param message       Message to send to master.
+	 * @param message Message to send to master.
 	 */
 	private void notify(Object message) {
 		Message msg = mWebSocketConnectionHandler.obtainMessage();
@@ -186,8 +186,8 @@ public class WebSocketWriter extends Thread {
 				throw new WebSocketException("close payload exceeds 125 octets");
 			}
 
-			payload[0] = (byte)((message.getCode() >> 8) & 0xff);
-			payload[1] = (byte)(message.getCode() & 0xff);
+			payload[0] = (byte) ((message.getCode() >> 8) & 0xff);
+			payload[1] = (byte) (message.getCode() & 0xff);
 
 			sendFrame(8, true, payload);
 		} else {
@@ -257,9 +257,9 @@ public class WebSocketWriter extends Thread {
 	 * Sends a WebSockets frame. Only need to use this method in derived classes which implement
 	 * more message types in processAppMessage(). You need to know what you are doing!
 	 *
-	 * @param opcode     The WebSocket frame opcode.
-	 * @param fin        FIN flag for WebSocket frame.
-	 * @param payload    Frame payload or null.
+	 * @param opcode  The WebSocket frame opcode.
+	 * @param fin     FIN flag for WebSocket frame.
+	 * @param payload Frame payload or null.
 	 */
 	protected void sendFrame(int opcode, boolean fin, byte[] payload) throws IOException {
 		if (payload != null) {
@@ -274,11 +274,11 @@ public class WebSocketWriter extends Thread {
 	 * Sends a WebSockets frame. Only need to use this method in derived classes which implement
 	 * more message types in processAppMessage(). You need to know what you are doing!
 	 *
-	 * @param opcode     The WebSocket frame opcode.
-	 * @param fin        FIN flag for WebSocket frame.
-	 * @param payload    Frame payload or null.
-	 * @param offset     Offset within payload of the chunk to send.
-	 * @param length     Length of the chunk within payload to send.
+	 * @param opcode  The WebSocket frame opcode.
+	 * @param fin     FIN flag for WebSocket frame.
+	 * @param payload Frame payload or null.
+	 * @param offset  Offset within payload of the chunk to send.
+	 * @param length  Length of the chunk within payload to send.
 	 */
 	protected void sendFrame(int opcode, boolean fin, byte[] payload, int offset, int length) throws IOException {
 		// first octet
@@ -304,18 +304,18 @@ public class WebSocketWriter extends Thread {
 		} else if (len <= 0xffff) {
 			b1 |= (byte) (126 & 0xff);
 			mApplicationBuffer.put(b1);
-			mApplicationBuffer.put(new byte[] {(byte)((len >> 8) & 0xff), (byte)(len & 0xff)});
+			mApplicationBuffer.put(new byte[]{(byte) ((len >> 8) & 0xff), (byte) (len & 0xff)});
 		} else {
 			b1 |= (byte) (127 & 0xff);
 			mApplicationBuffer.put(b1);
-			mApplicationBuffer.put(new byte[] {(byte)((len >> 56) & 0xff),
-					(byte)((len >> 48) & 0xff),
-					(byte)((len >> 40) & 0xff),
-					(byte)((len >> 32) & 0xff),
-					(byte)((len >> 24) & 0xff),
-					(byte)((len >> 16) & 0xff),
-					(byte)((len >> 8)  & 0xff),
-					(byte)(len         & 0xff)});
+			mApplicationBuffer.put(new byte[]{(byte) ((len >> 56) & 0xff),
+					(byte) ((len >> 48) & 0xff),
+					(byte) ((len >> 40) & 0xff),
+					(byte) ((len >> 32) & 0xff),
+					(byte) ((len >> 24) & 0xff),
+					(byte) ((len >> 16) & 0xff),
+					(byte) ((len >> 8) & 0xff),
+					(byte) (len & 0xff)});
 		}
 
 		byte mask[] = null;
@@ -345,8 +345,8 @@ public class WebSocketWriter extends Thread {
 	 * there should be no reason to override this. If you do, you
 	 * need to know what you are doing.
 	 *
-	 * @param msg     An instance of the message types within WebSocketMessage
-	 *                or a message that is handled in processAppMessage().
+	 * @param msg An instance of the message types within WebSocketMessage
+	 *            or a message that is handled in processAppMessage().
 	 */
 	protected void processMessage(Object msg) throws IOException, WebSocketException {
 
@@ -396,26 +396,25 @@ public class WebSocketWriter extends Thread {
 	 * Process message other than plain WebSockets or control message.
 	 * This is intended to be overridden in derived classes.
 	 *
-	 * @param msg      Message from foreground thread to process.
+	 * @param msg Message from foreground thread to process.
 	 */
 	protected void processAppMessage(Object msg) throws WebSocketException, IOException {
 		throw new WebSocketException("unknown message received by WebSocketWriter");
 	}
 
 
-
 	// Thread method overrides
 	@Override
-	public void run() {	
+	public void run() {
 		OutputStream outputStream = null;
 		try {
 			outputStream = mSocket.getOutputStream();
 		} catch (IOException e) {
 			Log.e(TAG, e.getLocalizedMessage());
 		}
-		
+
 		this.mOutputStream = outputStream;
-		
+
 		Looper.prepare();
 
 		this.mHandler = new ThreadHandler(this);
@@ -430,12 +429,10 @@ public class WebSocketWriter extends Thread {
 	}
 
 
-
 	//
 	// Private handler class
 	private static class ThreadHandler extends Handler {
 		private final WeakReference<WebSocketWriter> mWebSocketWriterReference;
-
 
 
 		public ThreadHandler(WebSocketWriter webSocketWriter) {
@@ -443,7 +440,6 @@ public class WebSocketWriter extends Thread {
 
 			this.mWebSocketWriterReference = new WeakReference<WebSocketWriter>(webSocketWriter);
 		}
-
 
 
 		@Override

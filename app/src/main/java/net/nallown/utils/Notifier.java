@@ -14,7 +14,7 @@ import net.nallown.animetwist.R;
 public class Notifier {
 
 	public static void showNotification(String title, String message,
-	                                    boolean alert, Context context){
+	                                    boolean alert, Context context) {
 		NotificationCompat.Builder mNotification =
 				new NotificationCompat.Builder(context)
 						.setSmallIcon(R.drawable.ic_launcher)
@@ -32,7 +32,7 @@ public class Notifier {
 		mNotificationManager.notify(0, mNotification.build());
 	}
 
-	public static void cancelNotification(Context context, int notificationId){
+	public static void cancelNotification(Context context, int notificationId) {
 		if (Context.NOTIFICATION_SERVICE != null) {
 			String ns = Context.NOTIFICATION_SERVICE;
 			NotificationManager mNotificationManager =

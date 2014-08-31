@@ -13,14 +13,14 @@ public final class Message {
 	private boolean donation;
 	private boolean admin;
 
-	public Message(String username, String message, boolean admin, boolean donation){
+	public Message(String username, String message, boolean admin, boolean donation) {
 		this.message = message;
 		this.username = username;
 		this.donation = donation;
 		this.admin = admin;
 	}
 
-	public Message(String message){
+	public Message(String message) {
 		this.message = message;
 		this.username = "Notice";
 		this.donation = false;
@@ -43,12 +43,15 @@ public final class Message {
 	public String getMessage() {
 		return message;
 	}
+
 	public String getUser() {
 		return username;
 	}
+
 	public boolean isAdmin() {
 		return admin;
 	}
+
 	public boolean getDonation() {
 		return donation;
 	}
