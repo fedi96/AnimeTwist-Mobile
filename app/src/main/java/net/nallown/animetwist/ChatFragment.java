@@ -45,7 +45,7 @@ public class ChatFragment extends Fragment {
 	ChatSocketHandler chatSocket = null;
 	NetworkReceiver networkReceiver = new NetworkReceiver();
 	boolean pausing = false;
-	boolean clearedBuffer = false;
+	boolean firstRun = true;
 	int messageCount = 0;
 	View view;
 
@@ -167,6 +167,10 @@ public class ChatFragment extends Fragment {
 
 			@Override
 			public void onTextMessage(final String payload) {
+				if (messageCount >= 40 && firstRun) {
+					firstRun = false;
+				}
+
 				if (payload.equals("keep-alive")) {
 					return;
 				}
@@ -187,13 +191,13 @@ public class ChatFragment extends Fragment {
 					}
 
 					if (!msgJson.has("auth")) {
-						if (messages.size() >= 40 && messageCount < 40) {
-							messageCount++;
-							return;
+						if ((!firstRun && messageCount >= 40) || firstRun) {
+							messages.add(Message.parseMessage(msgJson));
+							messageAdapter.notifyDataSetChanged();
 						}
 
-						messages.add(Message.parseMessage(msgJson));
-						messageAdapter.notifyDataSetChanged();
+						if (messageCount != 40)
+							messageCount++;
 					}
 				} catch (JSONException e) {
 					e.printStackTrace();
