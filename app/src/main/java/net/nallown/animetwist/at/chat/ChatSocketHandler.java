@@ -53,6 +53,10 @@ public class ChatSocketHandler implements WebSocket.WebSocketConnectionObserver 
 	}
 
 	public void reConnect() {
+		if (socketConnection != null && socketConnection.isConnected()) {
+			socketConnection.disconnect();
+		}
+
 		socketConnection = new WebSocketConnection();
 
 		try {

@@ -3,7 +3,7 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:orientation="vertical"
-              tools:context="net.nallown.animetwist.ChatActivity$PlaceholderFragment">
+              tools:context="net.nallown.animetwist.activities.ChatActivity$PlaceholderFragment">
 
     <ListView
         android:id="@+id/messages_listview"
@@ -19,7 +19,6 @@
         style="@style/EditText.Message"
         android:layout_width="match_parent"
         android:layout_height="45dp"
-        android:layout_marginTop="1dp"
         android:autoText="true"
         android:hint="..."
         android:imeOptions="actionSend"

@@ -1,4 +1,4 @@
-package net.nallown.animetwist;
+package net.nallown.animetwist.fragments;
 
 import android.app.Activity;
 import android.app.Fragment;
@@ -13,6 +13,9 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import net.nallown.animetwist.activities.ChatActivity;
+import net.nallown.animetwist.MessageAdapter;
+import net.nallown.animetwist.R;
 import net.nallown.animetwist.at.User;
 import net.nallown.animetwist.at.chat.ChatSocketHandler;
 import net.nallown.animetwist.at.chat.Message;

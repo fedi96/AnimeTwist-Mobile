@@ -1,4 +1,4 @@
-package net.nallown.animetwist;
+package net.nallown.animetwist.activities;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -10,7 +10,10 @@ import android.support.v4.widget.DrawerLayout;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import net.nallown.animetwist.R;
 import net.nallown.animetwist.at.User;
+import net.nallown.animetwist.fragments.ChatFragment;
+import net.nallown.animetwist.fragments.NavigationDrawerFragment;
 
 
 public class ChatActivity extends Activity

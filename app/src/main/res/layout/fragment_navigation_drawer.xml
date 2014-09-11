@@ -6,4 +6,4 @@
           android:choiceMode="singleChoice"
           android:divider="@color/gray"
           android:dividerHeight="1dp"
-          tools:context="net.nallown.animetwist.NavigationDrawerFragment"/>
+          tools:context="net.nallown.animetwist.fragments.NavigationDrawerFragment"/>

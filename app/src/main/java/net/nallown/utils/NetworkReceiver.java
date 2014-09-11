@@ -16,9 +16,6 @@ public class NetworkReceiver extends BroadcastReceiver {
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		boolean networkStatus = Network.isOnline(context, intent);
-		if (currentNetworkStatus == networkStatus) {
-			return;
-		}
 
 		networkStates.onNetworkChange(networkStatus);
 		Log.e("NetworkReceiver", "Network Changed");

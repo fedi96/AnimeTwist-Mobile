@@ -1,4 +1,4 @@
-package net.nallown.animetwist;
+package net.nallown.animetwist.fragments;
 
 
 import android.app.ActionBar;
@@ -20,6 +20,8 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+
+import net.nallown.animetwist.R;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation drawer.
