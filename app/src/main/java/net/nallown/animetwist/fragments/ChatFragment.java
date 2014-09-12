@@ -13,16 +13,15 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import net.nallown.animetwist.activities.ChatActivity;
-import net.nallown.animetwist.MessageAdapter;
 import net.nallown.animetwist.R;
+import net.nallown.animetwist.activities.ChatActivity;
+import net.nallown.animetwist.adapters.MessageAdapter;
 import net.nallown.animetwist.at.User;
-import net.nallown.animetwist.at.chat.ChatSocketHandler;
 import net.nallown.animetwist.at.chat.Message;
+import net.nallown.animetwist.at.chat.SocketHandler;
 import net.nallown.utils.NetworkReceiver;
 import net.nallown.utils.Notifier;
-import net.nallown.utils.States.SocketStates;
-import net.nallown.utils.websocket.WebSocket.WebSocketConnectionObserver.WebSocketCloseNotification;
+import net.nallown.utils.websocket.WebSocket;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -45,7 +44,7 @@ public class ChatFragment extends Fragment {
 	MessageAdapter messageAdapter = null;
 	ListView messageListview = null;
 	EditText messageField = null;
-	ChatSocketHandler chatSocket = null;
+	SocketHandler chatSocket = null;
 	NetworkReceiver networkReceiver = new NetworkReceiver();
 	boolean pausing = false;
 	boolean firstRun = true;
@@ -93,10 +92,10 @@ public class ChatFragment extends Fragment {
 			public boolean onEditorAction(TextView textView, int actionID, KeyEvent keyEvent) {
 				String message = messageField.getText().toString().trim();
 
-				if (
-						(actionID == EditorInfo.IME_ACTION_SEND
-								|| keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER)
-								&& !message.isEmpty()) {
+				if ((
+					actionID == EditorInfo.IME_ACTION_SEND
+					|| keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER
+				) && !message.isEmpty()){
 					JSONObject msgJson = new JSONObject();
 					try {
 						msgJson.put("type", "msg");
@@ -147,7 +146,10 @@ public class ChatFragment extends Fragment {
 	}
 
 	private void socketManager() {
-		chatSocket = new ChatSocketHandler(new SocketStates() {
+		chatSocket = new SocketHandler("wss://animetwist.net:9000");
+		chatSocket.connect();
+
+		chatSocket.setSocketStates(new SocketHandler.SocketStates() {
 			@Override
 			public void onOpen() {
 				JSONObject authJson = new JSONObject();
@@ -163,7 +165,7 @@ public class ChatFragment extends Fragment {
 			}
 
 			@Override
-			public void onClose(WebSocketCloseNotification code, String reason) {
+			public void onClose(WebSocket.WebSocketConnectionObserver.WebSocketCloseNotification code, String reason) {
 				Notifier.showNotification("Socket Closed", reason, true, getActivity());
 				Log.e(LOG_TAG, "socket closed");
 			}
@@ -205,14 +207,6 @@ public class ChatFragment extends Fragment {
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
-			}
-
-			@Override
-			public void onRawTextMessage(byte[] payload) {
-			}
-
-			@Override
-			public void onBinaryMessage(byte[] payload) {
 			}
 
 			@Override

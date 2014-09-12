@@ -1,4 +1,4 @@
-package net.nallown.animetwist;
+package net.nallown.animetwist.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import net.nallown.animetwist.R;
 import net.nallown.animetwist.at.chat.Message;
 
 import java.util.List;

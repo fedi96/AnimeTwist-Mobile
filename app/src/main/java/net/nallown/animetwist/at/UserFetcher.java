@@ -2,8 +2,6 @@ package net.nallown.animetwist.at;
 
 import android.os.AsyncTask;
 
-import net.nallown.utils.States.RequestStates;
-
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
@@ -20,17 +18,21 @@ import java.util.List;
 /**
  * Created by Nasir on 26/08/2014.
  */
-public class FetchUser extends AsyncTask<Void, Void, Void> {
+public class UserFetcher extends AsyncTask<Void, Void, Void> {
 	private RequestStates listener;
 	private String responseStr;
 	private String username;
 	private String password;
 
-	public FetchUser(String username, String password, RequestStates listener) {
+	public UserFetcher(String username, String password) {
 		this.username = username;
 		this.password = password;
 		this.listener = listener;
 		execute();
+	}
+
+	public void setRequestStates(RequestStates listener) {
+		this.listener = listener;
 	}
 
 	@Override
@@ -65,5 +67,14 @@ public class FetchUser extends AsyncTask<Void, Void, Void> {
 	protected void onPostExecute(Void aVoid) {
 		listener.onFinish(responseStr);
 		super.onPostExecute(aVoid);
+	}
+
+
+	public static interface RequestStates {
+		public void onError(Exception e);
+
+		public void onFinish(String result);
+
+		public void onStart();
 	}
 }

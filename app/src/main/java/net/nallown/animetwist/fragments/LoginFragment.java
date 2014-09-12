@@ -9,17 +9,17 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import net.nallown.animetwist.activities.ChatActivity;
 import net.nallown.animetwist.R;
-import net.nallown.animetwist.at.FetchUser;
+import net.nallown.animetwist.activities.ChatActivity;
 import net.nallown.animetwist.at.User;
-import net.nallown.utils.States.RequestStates;
+import net.nallown.animetwist.at.UserFetcher;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -67,7 +67,7 @@ public class LoginFragment extends Fragment {
 		}
 
 		// Listen to register button and redirect to Register
-		registerButton.setOnClickListener(new View.OnClickListener() {
+		registerButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				Intent browserIntent =
 						new Intent(Intent.ACTION_VIEW, Uri.parse("http://twist.moe/register"));
@@ -76,14 +76,7 @@ public class LoginFragment extends Fragment {
 		});
 
 		// Set login button listener
-		loginButton.setOnClickListener(loginListener());
-
-		return view;
-	}
-
-	// Login button listener
-	private View.OnClickListener loginListener() {
-		return new View.OnClickListener() {
+		loginButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View view) {
 				String usernameInputStr = usernameInput.getText().toString().trim();
@@ -97,14 +90,16 @@ public class LoginFragment extends Fragment {
 					loginSubmit(usernameInputStr, passwordInputStr);
 				}
 			}
-		};
-	}
+		});
 
-	;
+		return view;
+	}
 
 	// Login the user and cache, return True if successful
 	public void loginSubmit(final String username, final String password) {
-		FetchUser userFetcher = new FetchUser(username, password, new RequestStates() {
+		UserFetcher userFetcher = new UserFetcher(username, password);
+
+		userFetcher.setRequestStates(new UserFetcher.RequestStates() {
 			@Override
 			public void onError(Exception e) {
 				e.printStackTrace();
