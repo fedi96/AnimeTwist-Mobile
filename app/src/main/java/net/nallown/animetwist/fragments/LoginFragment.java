@@ -160,5 +160,7 @@ public class LoginFragment extends Fragment {
 				loginButton.setEnabled(true);
 			}
 		});
+
+		userFetcher.execute();
 	}
 }

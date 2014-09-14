@@ -27,8 +27,6 @@ public class UserFetcher extends AsyncTask<Void, Void, Void> {
 	public UserFetcher(String username, String password) {
 		this.username = username;
 		this.password = password;
-		this.listener = listener;
-		execute();
 	}
 
 	public void setRequestStates(RequestStates listener) {

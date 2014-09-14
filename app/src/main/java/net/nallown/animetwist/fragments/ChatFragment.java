@@ -2,6 +2,8 @@ package net.nallown.animetwist.fragments;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -17,6 +19,7 @@ import net.nallown.animetwist.R;
 import net.nallown.animetwist.activities.ChatActivity;
 import net.nallown.animetwist.adapters.MessageAdapter;
 import net.nallown.animetwist.at.User;
+import net.nallown.animetwist.at.UserFetcher;
 import net.nallown.animetwist.at.chat.Message;
 import net.nallown.animetwist.at.chat.SocketHandler;
 import net.nallown.utils.NetworkReceiver;
@@ -33,23 +36,25 @@ import java.util.ArrayList;
  */
 
 public class ChatFragment extends Fragment {
-	/**
-	 * The fragment argument representing the section number for this
-	 * fragment.
-	 */
 	private static final String ARG_SECTION_NUMBER = "section_number";
 	private final String LOG_TAG = getClass().getSimpleName();
-	User user = null;
+
 	ArrayList<Message> messages = null;
 	MessageAdapter messageAdapter = null;
+
 	ListView messageListview = null;
 	EditText messageField = null;
+	View view = null;
+
+	User user = null;
 	SocketHandler chatSocket = null;
+
 	NetworkReceiver networkReceiver = new NetworkReceiver();
+
+	private long pauseStart = 0;
 	boolean pausing = false;
 	boolean firstRun = true;
 	int messageCount = 0;
-	View view;
 
 	public ChatFragment() {
 	}
@@ -219,11 +224,65 @@ public class ChatFragment extends Fragment {
 	@Override
 	public void onPause() {
 		super.onPause();
+		pauseStart = System.currentTimeMillis();
 		pausing = true;
 	}
 
 	@Override
 	public void onResume() {
+		if (System.currentTimeMillis() - pauseStart > (60 * 1000) * 30) {
+			chatSocket.reConnect();
+
+			final SharedPreferences cachedUser = getActivity().getSharedPreferences("USER", Context.MODE_PRIVATE);
+			final User[] user = {null};
+
+			if (cachedUser.contains("username")) {
+				final String cachedUsername = cachedUser.getString("username", "");
+				final String cachedPassword = cachedUser.getString("password", "");
+
+				UserFetcher userFetcher = new UserFetcher(cachedUsername, cachedPassword);
+
+				userFetcher.setRequestStates(new UserFetcher.RequestStates() {
+					@Override
+					public void onError(Exception e) {
+						e.printStackTrace();
+					}
+
+					@Override
+					public void onStart() {
+					}
+
+					@Override
+					public void onFinish(String result) {
+						try {
+							JSONObject responseJson = new JSONObject(result);
+							String Status = responseJson.getString("res");
+
+							if (Status.equals("success")) {
+								String sessionID = responseJson.getString("token");
+
+								JSONObject authJson = new JSONObject();
+								try {
+									authJson.put("type", "auth");
+									authJson.put("token", sessionID);
+								} catch (JSONException e) {
+									e.printStackTrace();
+								}
+
+								chatSocket.sendMessage(authJson.toString());
+							}
+						} catch (JSONException e) {
+							e.printStackTrace();
+						}
+					}
+				});
+
+				userFetcher.execute();
+			}
+
+			Log.e(LOG_TAG, "Recreated chat and user");
+		}
+
 		super.onResume();
 		pausing = false;
 	}
