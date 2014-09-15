@@ -1,0 +1,24 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              tools:context="net.nallown.animetwist.fragments.VideosFragment"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:id="@+id/editText"
+        android:layout_gravity="center_horizontal"
+        style="@style/EditText.Search"
+        android:hint="SEARCH BY NAME"
+        android:inputType="textNoSuggestions|textCapWords"
+        android:singleLine="true"/>
+
+    <ListView android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/videos_listitem"
+        android:fastScrollEnabled="true"
+        android:footerDividersEnabled="false" />
+
+</LinearLayout>

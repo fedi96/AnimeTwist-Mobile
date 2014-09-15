@@ -32,6 +32,13 @@
         <item name="android:textColor">@color/gray_light</item>
     </style>
 
+    <style name="EditText.Search" parent="android:Widget.EditText">
+        <item name="android:textSize">16dp</item>
+        <item name="android:paddingLeft">16dp</item>
+        <item name="android:background">@color/red</item>
+        <item name="android:textColorHint">@color/red_light</item>
+    </style>
+
     <style name="Button" parent="@android:style/Widget.Button">
         <item name="android:background">@drawable/component_button</item>
         <item name="android:textColor">@color/gray_light</item>

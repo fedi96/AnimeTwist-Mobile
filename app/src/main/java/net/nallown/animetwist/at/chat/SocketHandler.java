@@ -1,8 +1,11 @@
 package net.nallown.animetwist.at.chat;
 
+import android.os.AsyncTask;
+
 import net.nallown.utils.websocket.WebSocket;
 import net.nallown.utils.websocket.WebSocketConnection;
 import net.nallown.utils.websocket.WebSocketException;
+import net.nallown.utils.websocket.WebSocketOptions;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -12,6 +15,7 @@ import java.net.URISyntaxException;
  */
 public class SocketHandler implements WebSocket.WebSocketConnectionObserver {
 	private SocketStates socketStates = null;
+	private WebSocketOptions webSocketOptions;
 	private WebSocketConnection socketConnection;
 	private URI ServerURI;
 	private String host = null;
@@ -61,10 +65,13 @@ public class SocketHandler implements WebSocket.WebSocketConnectionObserver {
 
 	public void connect() {
 		socketConnection = new WebSocketConnection();
+		webSocketOptions = new WebSocketOptions();
+		webSocketOptions.setSocketConnectTimeout((60 * 1000) * 45);
+		webSocketOptions.setReconnectInterval((60 * 1000) * 15);
 
 		try {
 			ServerURI = new URI(host);
-			socketConnection.connect(ServerURI, this);
+			socketConnection.connect(ServerURI, this, webSocketOptions);
 		} catch (URISyntaxException e) {
 			this.socketStates.onError(e);
 		} catch (WebSocketException e) {
@@ -76,6 +83,7 @@ public class SocketHandler implements WebSocket.WebSocketConnectionObserver {
 		if (socketConnection != null && socketConnection.isConnected()) {
 			socketConnection.disconnect();
 		}
+
 		connect();
 	}
 

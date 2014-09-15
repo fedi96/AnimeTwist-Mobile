@@ -3,7 +3,7 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:orientation="vertical"
-              tools:context="net.nallown.animetwist.activities.ChatActivity$PlaceholderFragment">
+              tools:context="net.nallown.animetwist.activities.MainActivity$PlaceholderFragment" >
 
     <ListView
         android:id="@+id/messages_listview"
@@ -25,5 +25,4 @@
         android:inputType="text"
         android:singleLine="false"/>
 
-    <!--https://developer.android.com/training/keyboard-input/style.html#Action-->
 </LinearLayout>

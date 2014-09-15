@@ -57,16 +57,7 @@ public class UserFetcher extends AsyncTask<Void, Void, Void> {
 
 			response = httpClient.execute(httpPost);
 			responseStr = EntityUtils.toString(response.getEntity());
-			JSONObject responseJson = new JSONObject(responseStr);
-			String Status = responseJson.getString("res");
-
-			if (Status.equals("success")) {
-				String sessionID = responseJson.getString("token");
-				user = new User(username, sessionID);
-			}
 		} catch (IOException e) {
-			listener.onError(e);
-		} catch (JSONException e) {
 			listener.onError(e);
 		}
 
@@ -75,6 +66,18 @@ public class UserFetcher extends AsyncTask<Void, Void, Void> {
 
 	@Override
 	protected void onPostExecute(Void aVoid) {
+		try {
+			JSONObject responseJson = new JSONObject(responseStr);
+			String Status = responseJson.getString("res");
+
+			if (Status.equals("success")) {
+				String sessionID = responseJson.getString("token");
+				user = new User(username, sessionID);
+			}
+		} catch (JSONException e) {
+			listener.onError(e);
+		}
+
 		listener.onFinish(user);
 		super.onPostExecute(aVoid);
 	}

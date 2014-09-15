@@ -16,7 +16,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import net.nallown.animetwist.R;
-import net.nallown.animetwist.activities.ChatActivity;
+import net.nallown.animetwist.activities.MainActivity;
 import net.nallown.animetwist.at.User;
 import net.nallown.animetwist.at.UserFetcher;
 
@@ -128,10 +128,13 @@ public class LoginFragment extends Fragment {
 					editor.putString("password", password);
 					editor.commit();
 
-					Intent chatIntent = new Intent(getActivity(), ChatActivity.class)
+					Intent chatIntent = new Intent(getActivity(), MainActivity.class)
 							.putExtra("user", user);
 					startActivity(chatIntent);
 					getActivity().finish();
+				} else {
+					usernameInput.setError("Invalid Credentials");
+					usernameInput.requestFocus();
 				}
 
 				// Enable input just in case wrong credentials and hide loader

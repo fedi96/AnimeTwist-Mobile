@@ -16,7 +16,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import net.nallown.animetwist.R;
-import net.nallown.animetwist.activities.ChatActivity;
 import net.nallown.animetwist.adapters.MessageAdapter;
 import net.nallown.animetwist.at.User;
 import net.nallown.animetwist.at.UserFetcher;
@@ -37,13 +36,12 @@ import java.util.ArrayList;
  */
 
 public class ChatFragment extends Fragment {
-	private static final String ARG_SECTION_NUMBER = "section_number";
 	private final String LOG_TAG = getClass().getSimpleName();
 
 	ArrayList<Message> messages = null;
 	MessageAdapter messageAdapter = null;
 
-	ListView messageListview = null;
+	ListView messageListView = null;
 	EditText messageField = null;
 	View view = null;
 
@@ -64,11 +62,11 @@ public class ChatFragment extends Fragment {
 	 * Returns a new instance of this fragment for the given section
 	 * number.
 	 */
-	public static ChatFragment newInstance(int sectionNumber) {
+	public static ChatFragment newInstance(/*int sectionNumber*/) {
 		ChatFragment fragment = new ChatFragment();
-		Bundle args = new Bundle();
-		args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-		fragment.setArguments(args);
+//		Bundle args = new Bundle();
+//		args.putInt(ARG_SECTION_NUMBER, sectionNumber);
+//		fragment.setArguments(args);
 		return fragment;
 	}
 
@@ -76,20 +74,20 @@ public class ChatFragment extends Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 	                         Bundle savedInstanceState) {
 		Bundle data = getActivity().getIntent().getExtras();
-		user = (User) data.getParcelable("user");
+		user = data.getParcelable("user");
 
 		// Initialize components
 		view = inflater.inflate(R.layout.fragment_chat, container, false);
-		messageListview = (ListView) view.findViewById(R.id.messages_listview);
+		messageListView = (ListView) view.findViewById(R.id.messages_listview);
 
 		messages = new ArrayList<Message>();
 		messageAdapter = new MessageAdapter(getActivity(), R.layout.list_item_message, messages);
 
 		messageField = (EditText) view.findViewById(R.id.messageInput);
 
-		messageListview.setAdapter(messageAdapter);
-		messageListview.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
-		messageListview.setStackFromBottom(true);
+		messageListView.setAdapter(messageAdapter);
+		messageListView.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
+		messageListView.setStackFromBottom(true);
 
 		socketManager();
 
@@ -147,8 +145,6 @@ public class ChatFragment extends Fragment {
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
-		((ChatActivity) activity).onSectionAttached(
-				getArguments().getInt(ARG_SECTION_NUMBER));
 	}
 
 	private void socketManager() {
@@ -270,8 +266,6 @@ public class ChatFragment extends Fragment {
 
 			userFetcher.execute();
 		}
-
-		Log.e(LOG_TAG, "Recreated chat and user");
 
 		super.onResume();
 		pausing = false;

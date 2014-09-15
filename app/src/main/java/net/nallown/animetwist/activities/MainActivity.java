@@ -14,9 +14,10 @@ import net.nallown.animetwist.R;
 import net.nallown.animetwist.at.User;
 import net.nallown.animetwist.fragments.ChatFragment;
 import net.nallown.animetwist.fragments.NavigationDrawerFragment;
+import net.nallown.animetwist.fragments.VideosFragment;
 
 
-public class ChatActivity extends Activity
+public class MainActivity extends Activity
 		implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 	private final String LOG_TAG = getClass().getSimpleName();
 
@@ -40,9 +41,9 @@ public class ChatActivity extends Activity
 		userSetting = getSharedPreferences("USER", 0);
 
 		Bundle data = getIntent().getExtras();
-		user = (User) data.getParcelable("user");
+		user = data.getParcelable("user");
 
-		setContentView(R.layout.activity_chat);
+		setContentView(R.layout.activity_main);
 
 		mNavigationDrawerFragment = (NavigationDrawerFragment)
 				getFragmentManager().findFragmentById(R.id.navigation_drawer);
@@ -58,15 +59,18 @@ public class ChatActivity extends Activity
 	public void onNavigationDrawerItemSelected(int position) {
 		// update the main content by replacing fragments
 		FragmentManager fragmentManager = getFragmentManager();
-		fragmentManager.beginTransaction()
-				.replace(R.id.container, ChatFragment.newInstance(position + 1))
-				.commit();
-	}
 
-	public void onSectionAttached(int number) {
-		switch (number) {
+		switch (position) {
+			case 0:
+				fragmentManager.beginTransaction()
+						.replace(R.id.container, ChatFragment.newInstance())
+						.commit();
+				break;
+
 			case 1:
-				mTitle = getString(R.string.chat_screen);
+				fragmentManager.beginTransaction()
+						.replace(R.id.container, VideosFragment.newInstance())
+						.commit();
 				break;
 		}
 	}
@@ -104,7 +108,7 @@ public class ChatActivity extends Activity
 		if (id == R.id.action_logout) {
 			SharedPreferences.Editor editor = userSetting.edit();
 			editor.clear();
-			editor.commit();
+			editor.apply();
 
 			Intent loginIntent = new Intent(this, LoginActivity.class);
 			startActivity(loginIntent);

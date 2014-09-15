@@ -20,7 +20,7 @@
         </activity>
 
         <activity
-            android:name=".activities.ChatActivity"
+            android:name=".activities.MainActivity"
             android:label="@string/chat_screen"
             android:screenOrientation="portrait">
         </activity>
