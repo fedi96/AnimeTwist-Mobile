@@ -22,6 +22,7 @@ import net.nallown.animetwist.at.User;
 import net.nallown.animetwist.at.UserFetcher;
 import net.nallown.animetwist.at.chat.Message;
 import net.nallown.animetwist.at.chat.SocketHandler;
+import net.nallown.utils.Network;
 import net.nallown.utils.NetworkReceiver;
 import net.nallown.utils.Notifier;
 import net.nallown.utils.websocket.WebSocket;
@@ -152,7 +153,6 @@ public class ChatFragment extends Fragment {
 
 	private void socketManager() {
 		chatSocket = new SocketHandler("wss://animetwist.net:9000");
-		chatSocket.connect();
 
 		chatSocket.setSocketStates(new SocketHandler.SocketStates() {
 			@Override
@@ -219,6 +219,8 @@ public class ChatFragment extends Fragment {
 				e.printStackTrace();
 			}
 		});
+
+		chatSocket.connect();
 	}
 
 	@Override
@@ -230,58 +232,46 @@ public class ChatFragment extends Fragment {
 
 	@Override
 	public void onResume() {
-		if (System.currentTimeMillis() - pauseStart > (60 * 1000) * 30) {
+		if (System.currentTimeMillis() - pauseStart > (60 * 1000) * 30 && Network.isOnline(getActivity())) {
 			chatSocket.reConnect();
 
 			final SharedPreferences cachedUser = getActivity().getSharedPreferences("USER", Context.MODE_PRIVATE);
-			final User[] user = {null};
 
-			if (cachedUser.contains("username")) {
-				final String cachedUsername = cachedUser.getString("username", "");
-				final String cachedPassword = cachedUser.getString("password", "");
+			final String cachedUsername = cachedUser.getString("username", "");
+			final String cachedPassword = cachedUser.getString("password", "");
 
-				UserFetcher userFetcher = new UserFetcher(cachedUsername, cachedPassword);
+			UserFetcher userFetcher = new UserFetcher(cachedUsername, cachedPassword);
 
-				userFetcher.setRequestStates(new UserFetcher.RequestStates() {
-					@Override
-					public void onError(Exception e) {
-						e.printStackTrace();
-					}
+			userFetcher.setRequestStates(new UserFetcher.RequestStates() {
+				@Override
+				public void onError(Exception e) {
+					e.printStackTrace();
+				}
 
-					@Override
-					public void onStart() {
-					}
+				@Override
+				public void onStart() {
+				}
 
-					@Override
-					public void onFinish(String result) {
+				@Override
+				public void onFinish(User user) {
+					if (user != null) {
+						JSONObject authJson = new JSONObject();
 						try {
-							JSONObject responseJson = new JSONObject(result);
-							String Status = responseJson.getString("res");
-
-							if (Status.equals("success")) {
-								String sessionID = responseJson.getString("token");
-
-								JSONObject authJson = new JSONObject();
-								try {
-									authJson.put("type", "auth");
-									authJson.put("token", sessionID);
-								} catch (JSONException e) {
-									e.printStackTrace();
-								}
-
-								chatSocket.sendMessage(authJson.toString());
-							}
+							authJson.put("type", "auth");
+							authJson.put("token", user.getSessionID());
 						} catch (JSONException e) {
 							e.printStackTrace();
 						}
+
+						chatSocket.sendMessage(authJson.toString());
 					}
-				});
+				}
+			});
 
-				userFetcher.execute();
-			}
-
-			Log.e(LOG_TAG, "Recreated chat and user");
+			userFetcher.execute();
 		}
+
+		Log.e(LOG_TAG, "Recreated chat and user");
 
 		super.onResume();
 		pausing = false;

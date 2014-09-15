@@ -1,7 +1,6 @@
 package net.nallown.utils;
 
 import android.content.Context;
-import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
@@ -10,7 +9,7 @@ import android.net.NetworkInfo;
  */
 public class Network {
 
-	public static boolean isOnline(Context c, Intent i) {
+	public static boolean isOnline(Context c) {
 		ConnectivityManager cm =
 				(ConnectivityManager) c.getSystemService(Context.CONNECTIVITY_SERVICE);
 

@@ -10,6 +10,8 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -19,6 +21,7 @@ import java.util.List;
  * Created by Nasir on 26/08/2014.
  */
 public class UserFetcher extends AsyncTask<Void, Void, Void> {
+	private User user;
 	private RequestStates listener;
 	private String responseStr;
 	private String username;
@@ -54,8 +57,17 @@ public class UserFetcher extends AsyncTask<Void, Void, Void> {
 
 			response = httpClient.execute(httpPost);
 			responseStr = EntityUtils.toString(response.getEntity());
+			JSONObject responseJson = new JSONObject(responseStr);
+			String Status = responseJson.getString("res");
+
+			if (Status.equals("success")) {
+				String sessionID = responseJson.getString("token");
+				user = new User(username, sessionID);
+			}
 		} catch (IOException e) {
-			responseStr = "{'res' : 'exception', 'message' : 'Failed to connect to Anime Twist server.'}";
+			listener.onError(e);
+		} catch (JSONException e) {
+			listener.onError(e);
 		}
 
 		return null;
@@ -63,7 +75,7 @@ public class UserFetcher extends AsyncTask<Void, Void, Void> {
 
 	@Override
 	protected void onPostExecute(Void aVoid) {
-		listener.onFinish(responseStr);
+		listener.onFinish(user);
 		super.onPostExecute(aVoid);
 	}
 
@@ -71,7 +83,7 @@ public class UserFetcher extends AsyncTask<Void, Void, Void> {
 	public static interface RequestStates {
 		public void onError(Exception e);
 
-		public void onFinish(String result);
+		public void onFinish(User user);
 
 		public void onStart();
 	}

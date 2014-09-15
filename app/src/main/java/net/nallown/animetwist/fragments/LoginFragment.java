@@ -1,6 +1,5 @@
 package net.nallown.animetwist.fragments;
 
-import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
@@ -21,8 +20,7 @@ import net.nallown.animetwist.activities.ChatActivity;
 import net.nallown.animetwist.at.User;
 import net.nallown.animetwist.at.UserFetcher;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import java.io.IOException;
 
 /**
  * Created by Nasir on 24/08/2014.
@@ -102,7 +100,11 @@ public class LoginFragment extends Fragment {
 		userFetcher.setRequestStates(new UserFetcher.RequestStates() {
 			@Override
 			public void onError(Exception e) {
-				e.printStackTrace();
+				if (e instanceof IOException) {
+
+				} else {
+					e.printStackTrace();
+				}
 			}
 
 			@Override
@@ -118,39 +120,18 @@ public class LoginFragment extends Fragment {
 			}
 
 			@Override
-			public void onFinish(String result) {
-				try {
-					JSONObject responseJson = new JSONObject(result);
-					String Status = responseJson.getString("res");
+			public void onFinish(User user) {
+				if (user != null) {
+					SharedPreferences.Editor editor = cachedUser.edit();
 
-					if (Status.equals("success")) {
-						String sessionID = responseJson.getString("token");
-						user = new User(username, sessionID);
+					editor.putString("username", username);
+					editor.putString("password", password);
+					editor.commit();
 
-						SharedPreferences.Editor editor = cachedUser.edit();
-
-						editor.putString("username", username);
-						editor.putString("password", password);
-						editor.commit();
-
-						Intent chatIntent = new Intent(getActivity(), ChatActivity.class)
-								.putExtra("user", user);
-						startActivity(chatIntent);
-						getActivity().finish();
-					} else if (Status.equals("exception")) {
-						String errorMsg = responseJson.getString("message");
-
-						AlertDialog.Builder alertBuilder = new AlertDialog.Builder(getActivity());
-						alertBuilder.setMessage(errorMsg)
-								.setTitle("Error");
-						AlertDialog dialog = alertBuilder.create();
-						dialog.show();
-					} else {
-						usernameInput.setError("Invalid Credentials");
-						usernameInput.requestFocus();
-					}
-				} catch (JSONException e) {
-					e.printStackTrace();
+					Intent chatIntent = new Intent(getActivity(), ChatActivity.class)
+							.putExtra("user", user);
+					startActivity(chatIntent);
+					getActivity().finish();
 				}
 
 				// Enable input just in case wrong credentials and hide loader
