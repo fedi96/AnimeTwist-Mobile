@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import net.nallown.animetwist.R;
 import net.nallown.animetwist.activities.MainActivity;
@@ -95,13 +96,16 @@ public class LoginFragment extends Fragment {
 
 	// Login the user and cache, return True if successful
 	public void loginSubmit(final String username, final String password) {
+		final Toast noNetworkToast = Toast.makeText(
+				getActivity(), "Failed to connect to the Anime Twist servers.", Toast.LENGTH_LONG);
+
 		UserFetcher userFetcher = new UserFetcher(username, password);
 
 		userFetcher.setRequestStates(new UserFetcher.RequestStates() {
 			@Override
 			public void onError(Exception e) {
 				if (e instanceof IOException) {
-
+					noNetworkToast.show();
 				} else {
 					e.printStackTrace();
 				}

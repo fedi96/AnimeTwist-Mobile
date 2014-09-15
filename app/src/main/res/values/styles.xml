@@ -8,6 +8,7 @@
         <item name="android:windowBackground">@color/black</item>
         <item name="android:color">@color/gray_light</item>
         <item name="android:activatedBackgroundIndicator">@drawable/activated_bg</item>
+        <item name="android:fastScrollTrackDrawable">@android:drawable/</item>
     </style>
 
     <style name="AT.NoActionBar" parent="AT.Default">
@@ -21,6 +22,14 @@
         <item name="android:background">@drawable/actionbar_bg</item>
     </style>
 
+    <style name="TextView.Ongoing" parent="android:Widget.TextView">
+        <item name="android:background">@color/red</item>
+        <item name="android:textColor">#ffffff</item>
+        <item name="android:padding">3dp</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    
     <style name="EditText" parent="android:Widget.EditText">
         <item name="android:background">@drawable/component_edittext</item>
         <item name="android:textColor">@color/gray_light</item>

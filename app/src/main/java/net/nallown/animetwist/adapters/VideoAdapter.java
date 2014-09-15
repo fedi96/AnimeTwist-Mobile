@@ -7,7 +7,6 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.SectionIndexer;
 import android.widget.TextView;
 
 import net.nallown.animetwist.R;
@@ -47,7 +46,6 @@ public class VideoAdapter extends ArrayAdapter<Video> {
 		ImageView videoThumbnail = (ImageView) videoView.findViewById(R.id.video_thumbnail);
 
 		videoTitle.setText(video.getTitle());
-		videoThumbnail.setImageResource(R.drawable.placeholder);
 
 		return videoView;
 	}
