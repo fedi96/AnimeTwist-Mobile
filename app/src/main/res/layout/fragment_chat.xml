@@ -3,7 +3,7 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:orientation="vertical"
-              tools:context="net.nallown.animetwist.activities.MainActivity$PlaceholderFragment" >
+              tools:context="net.nallown.animetwist.fragments.ChatFragment" >
 
     <ListView
         android:id="@+id/messages_listview"

@@ -13,31 +13,24 @@ import android.view.MenuItem;
 import net.nallown.animetwist.R;
 import net.nallown.animetwist.at.User;
 import net.nallown.animetwist.fragments.ChatFragment;
-import net.nallown.animetwist.fragments.NavigationDrawerFragment;
 import net.nallown.animetwist.fragments.VideosFragment;
 
 
-public class MainActivity extends Activity
-		implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+public class MainActivity extends Activity {
 	private final String LOG_TAG = getClass().getSimpleName();
 
 	SharedPreferences userSetting;
 
 	User user = null;
 
-	/**
-	 * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
-	 */
-	private NavigationDrawerFragment mNavigationDrawerFragment;
-
-	/**
-	 * Used to store the last screen title. For use in {@link #restoreActionBar()}.
-	 */
-	private CharSequence mTitle;
+	private ChatFragment mNavigationDrawerFragment;
+	private FragmentManager fragmentManager;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		fragmentManager = getFragmentManager();
+
 		userSetting = getSharedPreferences("USER", 0);
 
 		Bundle data = getIntent().getExtras();
@@ -45,63 +38,38 @@ public class MainActivity extends Activity
 
 		setContentView(R.layout.activity_main);
 
-		mNavigationDrawerFragment = (NavigationDrawerFragment)
+		mNavigationDrawerFragment = (ChatFragment)
 				getFragmentManager().findFragmentById(R.id.navigation_drawer);
-		mTitle = getTitle();
 
-		// Set up the drawer.
 		mNavigationDrawerFragment.setUp(
 				R.id.navigation_drawer,
 				(DrawerLayout) findViewById(R.id.drawer_layout));
+
+		fragmentManager.beginTransaction()
+				.replace(R.id.container, VideosFragment.newInstance())
+				.commit();
 	}
 
-	@Override
-	public void onNavigationDrawerItemSelected(int position) {
-		// update the main content by replacing fragments
-		FragmentManager fragmentManager = getFragmentManager();
-
-		switch (position) {
-			case 0:
-				fragmentManager.beginTransaction()
-						.replace(R.id.container, ChatFragment.newInstance())
-						.commit();
-				break;
-
-			case 1:
-				fragmentManager.beginTransaction()
-						.replace(R.id.container, VideosFragment.newInstance())
-						.commit();
-				break;
-		}
-	}
-
-	public void restoreActionBar() {
+	public void setTitle(CharSequence title) {
 		ActionBar actionBar = getActionBar();
-		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
 		actionBar.setDisplayShowTitleEnabled(true);
-		actionBar.setTitle(mTitle);
+		actionBar.setTitle(title);
 	}
-
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		if (!mNavigationDrawerFragment.isDrawerOpen()) {
-			// Only show items in the action bar relevant to this screen
-			// if the drawer is not showing. Otherwise, let the drawer
-			// decide what to show in the action bar.
-			getMenuInflater().inflate(R.menu.chat, menu);
-			restoreActionBar();
+			setTitle(R.string.videos_screen);
 			return true;
 		}
+
+		getMenuInflater().inflate(R.menu.chat, menu);
+		setTitle(R.string.chat_screen);
 		return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle action bar item clicks here. The action bar will
-		// automatically handle clicks on the Home/Up button, so long
-		// as you specify a parent activity in AndroidManifest.xml.
-
 		int id = item.getItemId();
 
 //	    clear User Cache on option Logout
@@ -122,6 +90,10 @@ public class MainActivity extends Activity
 	// Hide app instead of closing
 	@Override
 	public void onBackPressed() {
+		if (mNavigationDrawerFragment.isDrawerOpen()) {
+			mNavigationDrawerFragment.getDrawerLayout().closeDrawers();
+			return;
+		}
 		moveTaskToBack(true);
 	}
 }

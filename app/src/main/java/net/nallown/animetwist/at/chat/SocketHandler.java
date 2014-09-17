@@ -1,7 +1,8 @@
 package net.nallown.animetwist.at.chat;
 
-import android.os.AsyncTask;
+import android.app.Activity;
 
+import net.nallown.utils.Network;
 import net.nallown.utils.websocket.WebSocket;
 import net.nallown.utils.websocket.WebSocketConnection;
 import net.nallown.utils.websocket.WebSocketException;
@@ -63,11 +64,15 @@ public class SocketHandler implements WebSocket.WebSocketConnectionObserver {
 	}
 
 
-	public void connect() {
+	public void connect(Activity activity) {
+		if (!Network.isOnline(activity)) {
+			return;
+		}
+
 		socketConnection = new WebSocketConnection();
 		webSocketOptions = new WebSocketOptions();
-		webSocketOptions.setSocketConnectTimeout((60 * 1000) * 45);
-		webSocketOptions.setReconnectInterval((60 * 1000) * 15);
+		webSocketOptions.setSocketConnectTimeout((60 * 1000) * 5);
+		webSocketOptions.setReconnectInterval((60 * 1000) * 5);
 
 		try {
 			ServerURI = new URI(host);
@@ -79,12 +84,12 @@ public class SocketHandler implements WebSocket.WebSocketConnectionObserver {
 		}
 	}
 
-	public void reConnect() {
+	public void reConnect(Activity activity) {
 		if (socketConnection != null && socketConnection.isConnected()) {
 			socketConnection.disconnect();
 		}
 
-		connect();
+		connect(activity);
 	}
 
 	public static interface SocketStates {

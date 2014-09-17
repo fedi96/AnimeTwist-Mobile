@@ -130,8 +130,8 @@ public class LoginFragment extends Fragment {
 
 					editor.putString("username", username);
 					editor.putString("password", password);
-					editor.commit();
 
+					editor.apply();
 					Intent chatIntent = new Intent(getActivity(), MainActivity.class)
 							.putExtra("user", user);
 					startActivity(chatIntent);

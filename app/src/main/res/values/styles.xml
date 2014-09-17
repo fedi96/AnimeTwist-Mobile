@@ -8,6 +8,7 @@
         <item name="android:windowBackground">@color/black</item>
         <item name="android:color">@color/gray_light</item>
         <item name="android:activatedBackgroundIndicator">@drawable/activated_bg</item>
+        <item name="android:fastScrollThumbDrawable">@drawable/fastscroll_thumb</item>
     </style>
 
     <style name="AT.NoActionBar" parent="AT.Default">
@@ -36,7 +37,7 @@
 
     <style name="EditText.Message" parent="android:Widget.EditText">
         <item name="android:paddingLeft">16dp</item>
-        <item name="android:background">#222222</item>
+        <item name="android:background">@color/gray_dark</item>
         <item name="android:textColor">@color/gray_light</item>
     </style>
 

@@ -23,10 +23,10 @@
          the container. -->
     <fragment
         android:id="@+id/navigation_drawer"
-        android:name="net.nallown.animetwist.fragments.NavigationDrawerFragment"
+        android:name="net.nallown.animetwist.fragments.ChatFragment"
         android:layout_width="@dimen/navigation_drawer_width"
         android:layout_height="match_parent"
-        android:layout_gravity="start"
-        tools:layout="@layout/fragment_navigation_drawer"/>
+        android:layout_gravity="right"
+        tools:layout="@layout/fragment_chat"/>
 
 </android.support.v4.widget.DrawerLayout>

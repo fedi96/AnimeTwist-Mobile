@@ -5,6 +5,10 @@ import android.app.Fragment;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -21,7 +25,6 @@ import net.nallown.animetwist.at.User;
 import net.nallown.animetwist.at.UserFetcher;
 import net.nallown.animetwist.at.chat.Message;
 import net.nallown.animetwist.at.chat.SocketHandler;
-import net.nallown.utils.Network;
 import net.nallown.utils.NetworkReceiver;
 import net.nallown.utils.Notifier;
 import net.nallown.utils.websocket.WebSocket;
@@ -37,37 +40,49 @@ import java.util.ArrayList;
 
 public class ChatFragment extends Fragment {
 	private final String LOG_TAG = getClass().getSimpleName();
+	private String DRAWER_STATE_TITLE = "DRAWER_STATE";
 
-	ArrayList<Message> messages = null;
-	MessageAdapter messageAdapter = null;
+	private SharedPreferences sharedPreferences;
+	private boolean mUserLearnedDrawer;
 
-	ListView messageListView = null;
-	EditText messageField = null;
-	View view = null;
+	private ActionBarDrawerToggle mDrawerToggle;
 
-	User user = null;
-	SocketHandler chatSocket = null;
+	private DrawerLayout mDrawerLayout;
+	private View mFragmentContainerView;
 
-	NetworkReceiver networkReceiver = new NetworkReceiver();
+	private ArrayList<Message> messages = null;
+	private MessageAdapter messageAdapter = null;
 
-	private long pauseStart = 0;
-	boolean pausing = false;
-	boolean firstRun = true;
-	int messageCount = 0;
+	private ListView messageListView = null;
+	private EditText messageField = null;
+	private View view = null;
+
+	private User user = null;
+	private SocketHandler chatSocket = null;
+
+	private NetworkReceiver networkReceiver = new NetworkReceiver();
+
+	private long disconnectTime = -1;
+	private boolean pausing = false;
+	private boolean firstRun = true;
+	private int messageCount = 0;
 
 	public ChatFragment() {
 	}
 
-	/**
-	 * Returns a new instance of this fragment for the given section
-	 * number.
-	 */
-	public static ChatFragment newInstance(/*int sectionNumber*/) {
-		ChatFragment fragment = new ChatFragment();
-//		Bundle args = new Bundle();
-//		args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-//		fragment.setArguments(args);
-		return fragment;
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
+		sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+		mUserLearnedDrawer = sharedPreferences.getBoolean(DRAWER_STATE_TITLE, false);
+	}
+
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+
+		setHasOptionsMenu(true);
 	}
 
 	@Override
@@ -121,7 +136,7 @@ public class ChatFragment extends Fragment {
 			@Override
 			public void onNetworkChange(boolean connected) {
 				if (connected) {
-					chatSocket.reConnect();
+					chatSocket.reConnect(getActivity());
 					messageField.setEnabled(true);
 					messageField.setHint("...");
 				} else {
@@ -216,21 +231,20 @@ public class ChatFragment extends Fragment {
 			}
 		});
 
-		chatSocket.connect();
+		chatSocket.connect(getActivity());
 	}
 
 	@Override
 	public void onPause() {
 		super.onPause();
-		pauseStart = System.currentTimeMillis();
+		disconnectTime = System.currentTimeMillis();
 		pausing = true;
 	}
 
 	@Override
 	public void onResume() {
-		if (System.currentTimeMillis() - pauseStart > (60 * 1000) * 30 && Network.isOnline(getActivity())) {
-			chatSocket.reConnect();
-
+		if (disconnectTime != -1 && System.currentTimeMillis() - disconnectTime > ((60 * 1000) * 60)) {
+			chatSocket.reConnect(getActivity());
 			final SharedPreferences cachedUser = getActivity().getSharedPreferences("USER", Context.MODE_PRIVATE);
 
 			final String cachedUsername = cachedUser.getString("username", "");
@@ -243,6 +257,7 @@ public class ChatFragment extends Fragment {
 				public void onError(Exception e) {
 					e.printStackTrace();
 				}
+
 
 				@Override
 				public void onStart() {
@@ -260,6 +275,8 @@ public class ChatFragment extends Fragment {
 						}
 
 						chatSocket.sendMessage(authJson.toString());
+
+						Log.i(LOG_TAG, "Reconnected to socket");
 					}
 				}
 			});
@@ -269,5 +286,66 @@ public class ChatFragment extends Fragment {
 
 		super.onResume();
 		pausing = false;
+	}
+
+	public void setUp(int fragmentId, DrawerLayout drawerLayout) {
+		mFragmentContainerView = getActivity().findViewById(fragmentId);
+		mDrawerLayout = drawerLayout;
+
+		mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+
+		mDrawerToggle = new ActionBarDrawerToggle(
+				getActivity(),
+				mDrawerLayout,
+				R.drawable.ic_drawer,
+				R.string.navigation_drawer_open,
+				R.string.navigation_drawer_close
+		) {
+			@Override
+			public void onDrawerClosed(View drawerView) {
+				super.onDrawerClosed(drawerView);
+				if (!isAdded()) {
+					return;
+				}
+
+				getActivity().invalidateOptionsMenu();
+			}
+
+			@Override
+			public void onDrawerOpened(View drawerView) {
+				super.onDrawerOpened(drawerView);
+				if (!isAdded()) {
+					return;
+				}
+
+				chatSocket.reConnect(getActivity());
+				getActivity().invalidateOptionsMenu();
+			}
+		};
+
+		if (!mUserLearnedDrawer) {
+			mDrawerLayout.openDrawer(mFragmentContainerView);
+
+			SharedPreferences.Editor editor = sharedPreferences.edit();
+			editor.putBoolean(DRAWER_STATE_TITLE, true);
+			editor.apply();
+		}
+
+		mDrawerLayout.post(new Runnable() {
+			@Override
+			public void run() {
+				mDrawerToggle.syncState();
+			}
+		});
+
+		mDrawerLayout.setDrawerListener(mDrawerToggle);
+	}
+
+	public boolean isDrawerOpen() {
+		return mDrawerLayout != null && mDrawerLayout.isDrawerOpen(mFragmentContainerView);
+	}
+
+	public DrawerLayout getDrawerLayout() {
+		return mDrawerLayout;
 	}
 }
