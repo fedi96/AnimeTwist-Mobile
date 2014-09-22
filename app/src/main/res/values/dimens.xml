@@ -11,7 +11,11 @@
     <dimen name="button_min_width">100dp</dimen>
     <dimen name="button_min_height">45dp</dimen>
     <dimen name="button_text_size">16dp</dimen>
-
     <dimen name="navigation_drawer_width">330dp</dimen>
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+
+    <!-- Video Player -->
+    <dimen name="video_height_normal">200dp</dimen>
 
 </resources>

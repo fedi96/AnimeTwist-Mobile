@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
 
     <!-- Theme -->
@@ -8,6 +9,7 @@
         <item name="android:windowBackground">@color/black</item>
         <item name="android:color">@color/gray_light</item>
         <item name="android:activatedBackgroundIndicator">@drawable/activated_bg</item>
+        <item name="android:progressBarStyleHorizontal">@style/ProgressBar</item>
         <item name="android:fastScrollThumbDrawable">@drawable/fastscroll_thumb</item>
     </style>
 
@@ -16,6 +18,9 @@
         <item name="android:windowNoTitle">true</item>
     </style>
 
+    <style name="AT.Fullscreen" parent="AT.NoActionBar">
+        <item name="android:windowFullscreen">true</item>
+    </style>
 
     <!-- Individual Components. -->
     <style name="ActionBar" parent="@android:style/Widget.Holo.ActionBar">
@@ -29,7 +34,7 @@
         <item name="android:textAllCaps">true</item>
         <item name="android:textStyle">bold</item>
     </style>
-    
+
     <style name="EditText" parent="android:Widget.EditText">
         <item name="android:background">@drawable/component_edittext</item>
         <item name="android:textColor">@color/gray_light</item>
@@ -55,4 +60,12 @@
         <item name="android:minWidth">@dimen/button_min_width</item>
         <item name="android:minHeight">@dimen/button_min_height</item>
     </style>
+
+    <style name="ProgressBar" parent="android:Widget.ProgressBar.Horizontal">
+        <item name="android:progressDrawable">@drawable/component_progress_horizontal</item>
+        <item name="android:indeterminateDrawable">@drawable/component_progress_indeterminate_horizontal</item>
+        <item name="android:minHeight">16dip</item>
+        <item name="android:maxHeight">16dip</item>
+    </style>
+
 </resources>

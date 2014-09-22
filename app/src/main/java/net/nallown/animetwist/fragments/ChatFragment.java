@@ -23,8 +23,8 @@ import net.nallown.animetwist.R;
 import net.nallown.animetwist.adapters.MessageAdapter;
 import net.nallown.animetwist.at.User;
 import net.nallown.animetwist.at.UserFetcher;
+import net.nallown.animetwist.at.chat.ChatSocket;
 import net.nallown.animetwist.at.chat.Message;
-import net.nallown.animetwist.at.chat.SocketHandler;
 import net.nallown.utils.NetworkReceiver;
 import net.nallown.utils.Notifier;
 import net.nallown.utils.websocket.WebSocket;
@@ -58,14 +58,11 @@ public class ChatFragment extends Fragment {
 	private View view = null;
 
 	private User user = null;
-	private SocketHandler chatSocket = null;
+	private ChatSocket chatSocket = null;
 
 	private NetworkReceiver networkReceiver = new NetworkReceiver();
 
 	private long disconnectTime = -1;
-	private boolean pausing = false;
-	private boolean firstRun = true;
-	private int messageCount = 0;
 
 	public ChatFragment() {
 	}
@@ -163,21 +160,12 @@ public class ChatFragment extends Fragment {
 	}
 
 	private void socketManager() {
-		chatSocket = new SocketHandler("wss://animetwist.net:9000");
+		chatSocket = new ChatSocket("wss://animetwist.net:9000", user, getActivity());
 
-		chatSocket.setSocketStates(new SocketHandler.SocketStates() {
+		chatSocket.setSocketStates(new ChatSocket.SocketStates() {
 			@Override
 			public void onOpen() {
-				JSONObject authJson = new JSONObject();
-				try {
-					authJson.put("type", "auth");
-					authJson.put("token", user.getSessionID());
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
-				chatSocket.sendMessage(authJson.toString());
-
-				messageCount = 0;
+				chatSocket.sendMessage(user.getJsonAuthToken());
 			}
 
 			@Override
@@ -187,42 +175,9 @@ public class ChatFragment extends Fragment {
 			}
 
 			@Override
-			public void onTextMessage(final String payload) {
-				if (messageCount >= 40 && firstRun) {
-					firstRun = false;
-				}
-
-				if (payload.equals("keep-alive")) {
-					return;
-				}
-
-				try {
-					JSONObject msgJson = new JSONObject(payload);
-					String msg = msgJson.optString("msg");
-					String msgUser = msgJson.optString("username");
-
-					// Needs option amd keywords
-					if (msg.toLowerCase().contains(user.getUsername().toLowerCase())
-							&& !msgUser.toLowerCase().equals(user.getUsername().toLowerCase())
-							&& pausing) {
-						Notifier.showNotification(
-								msgUser + " mentioned you",
-								msg, true, getActivity()
-						);
-					}
-
-					if (!msgJson.has("auth")) {
-						if ((!firstRun && messageCount >= 40) || firstRun) {
-							messages.add(Message.parseMessage(msgJson));
-							messageAdapter.notifyDataSetChanged();
-						}
-
-						if (messageCount != 40)
-							messageCount++;
-					}
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
+			public void onTextMessage(JSONObject messageJsonObj) {
+				messages.add(Message.parseMessage(messageJsonObj));
+				messageAdapter.notifyDataSetChanged();
 			}
 
 			@Override
@@ -237,12 +192,15 @@ public class ChatFragment extends Fragment {
 	@Override
 	public void onPause() {
 		super.onPause();
+		chatSocket.enableNotifications(true);
 		disconnectTime = System.currentTimeMillis();
-		pausing = true;
 	}
 
 	@Override
 	public void onResume() {
+		chatSocket.enableNotifications(false);
+
+		//FIXME Remove when session has been set to last one Month
 		if (disconnectTime != -1 && System.currentTimeMillis() - disconnectTime > ((60 * 1000) * 60)) {
 			chatSocket.reConnect(getActivity());
 			final SharedPreferences cachedUser = getActivity().getSharedPreferences("USER", Context.MODE_PRIVATE);
@@ -285,14 +243,13 @@ public class ChatFragment extends Fragment {
 		}
 
 		super.onResume();
-		pausing = false;
 	}
 
 	public void setUp(int fragmentId, DrawerLayout drawerLayout) {
 		mFragmentContainerView = getActivity().findViewById(fragmentId);
 		mDrawerLayout = drawerLayout;
 
-		mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+		mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.END);
 
 		mDrawerToggle = new ActionBarDrawerToggle(
 				getActivity(),
@@ -318,6 +275,7 @@ public class ChatFragment extends Fragment {
 					return;
 				}
 
+				// FIXME Remove when websocket connection lost has been fixed
 				chatSocket.reConnect(getActivity());
 				getActivity().invalidateOptionsMenu();
 			}

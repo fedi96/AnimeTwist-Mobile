@@ -1,20 +1,26 @@
 package net.nallown.animetwist.fragments;
 
 
-
 import android.app.Fragment;
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 
 import net.nallown.animetwist.R;
+import net.nallown.animetwist.activities.SeriesActivity;
 import net.nallown.animetwist.adapters.VideoAdapter;
+import net.nallown.animetwist.at.videos.ThumbnailFetcher;
 import net.nallown.animetwist.at.videos.Video;
+import net.nallown.animetwist.at.videos.VideoFetcher;
 
 import java.util.ArrayList;
 
@@ -23,48 +29,64 @@ import java.util.ArrayList;
  *
  */
 public class VideosFragment extends Fragment {
-
-	private View view;
+	private final String LOG_TAG = getClass().getSimpleName();
 
 	private ArrayList<Video> videos = null;
 	private ArrayList<Video> allVideos = null;
 	private VideoAdapter videoAdapter = null;
 
-	private ListView videoListView;
 	private EditText searchEditText;
+	private LinearLayout fetchingVideos;
 
     public VideosFragment() {
-        // Required empty public constructor
     }
 
-	public static VideosFragment newInstance(/*int sectionNumber*/) {
-		VideosFragment fragment = new VideosFragment();
-//		Bundle args = new Bundle();
-//		args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-//		fragment.setArguments(args);
-		return fragment;
-	}
 
-
-    @Override
+	@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-	    view = inflater.inflate(R.layout.fragment_videos, container, false);
-	    videoListView = (ListView) view.findViewById(R.id.videos_listitem);
+	    View view = inflater.inflate(R.layout.fragment_videos, container, false);
+
+	    ListView videoListView = (ListView) view.findViewById(R.id.videos_listitem);
 		searchEditText = (EditText) view.findViewById(R.id.videos_search);
+	    fetchingVideos = (LinearLayout) view.findViewById(R.id.fetching_videos);
 
 	    videos = new ArrayList<Video>();
 	    allVideos = new ArrayList<Video>();
 	    videoAdapter = new VideoAdapter(getActivity(), R.layout.list_item_video, videos);
 
 	    videoListView.setAdapter(videoAdapter);
-	    videoListView.setTextFilterEnabled(true);
+		videoListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+				String seriesFolder = videos.get(i).getFolder();
+				Intent videoIntent = new Intent(getActivity(), SeriesActivity.class);
+				videoIntent.putExtra("folder_name", seriesFolder);
 
-	    for (int i = 0; i < 20; i++) {
-		    allVideos.add(new Video("Video " + i, ""));
-		    videos.add(new Video("Video " + i, ""));
-		    videoAdapter.notifyDataSetChanged();
-	    }
+				startActivity(videoIntent);
+			}
+		});
+
+		VideoFetcher videoFetcher = new VideoFetcher(new VideoFetcher.RequestStates() {
+		    @Override
+		    public void onError(Exception e) {
+			    e.printStackTrace();
+		    }
+
+		    @Override
+		    public void onStart() {
+			    fetchingVideos.setVisibility(View.VISIBLE);
+		    }
+
+		    @Override
+		    public void onFinish(ArrayList<Video> videoArrayList) {
+			    fetchingVideos.setVisibility(View.GONE);
+			    searchEditText.setVisibility(View.VISIBLE);
+
+			    packArrayLists(videoArrayList);
+		    }
+	    });
+		videoFetcher.execute();
 
 	    searchEditText.addTextChangedListener(new TextWatcher() {
 		    @Override
@@ -72,17 +94,10 @@ public class VideosFragment extends Fragment {
 		    }
 
 		    @Override
-		    public void onTextChanged(CharSequence string, int i, int i2, int i3) {
-			    String searchString = string.toString().toLowerCase().trim();
+		    public void onTextChanged(CharSequence searchInput, int i, int i2, int i3) {
+			    String searchString = searchInput.toString().toLowerCase().trim();
 
-			    videos.clear();
-			    for (Video video: allVideos) {
-				    if (video.getTitle().toLowerCase().contains(searchString)) {
-					    videos.add(video);
-				    }
-			    }
-
-			    videoAdapter.notifyDataSetChanged();
+				sortListView(searchString);
 		    }
 
 		    @Override
@@ -93,5 +108,36 @@ public class VideosFragment extends Fragment {
         return view;
     }
 
+	private void packArrayLists(ArrayList<Video> videoArrayList) {
+		for (final Video video : videoArrayList) {
+			ThumbnailFetcher thumbnailFetcher = new ThumbnailFetcher(video.getThumbnailUrl());
+			thumbnailFetcher.setRequestStates(new ThumbnailFetcher.RequestStates() {
+				@Override
+				public void onError(Exception e) {
 
+				}
+
+				@Override
+				public void onFinish(Bitmap thumbnailBitmap) {
+					video.setThumbnail(thumbnailBitmap);
+					videos.add(video);
+					allVideos.add(video);
+
+					videoAdapter.notifyDataSetChanged();
+				}
+			});
+			thumbnailFetcher.execute();
+		}
+	}
+
+	private void sortListView(String searchStr) {
+		videos.clear();
+		for (Video video: allVideos) {
+			if (video.getTitle().toLowerCase().contains(searchStr)) {
+				videos.add(video);
+			}
+		}
+
+		videoAdapter.notifyDataSetChanged();
+	}
 }

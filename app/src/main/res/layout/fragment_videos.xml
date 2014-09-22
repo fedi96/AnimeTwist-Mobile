@@ -14,12 +14,41 @@
         android:hint="SEARCH BY NAME"
         android:inputType="textNoSuggestions|textCapWords"
         android:imeOptions="actionSearch"
-        android:singleLine="true"/>
+        android:singleLine="true"
+        android:visibility="gone"/>
 
     <ListView android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/videos_listitem"
         android:fastScrollEnabled="true"
-        android:footerDividersEnabled="false" />
+        android:footerDividersEnabled="false"
+        android:layout_weight="1"
+        android:dividerHeight="1dp"
+        android:divider="@color/transparent"/>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:id="@+id/fetching_videos"
+        android:paddingTop="6dp"
+        android:visibility="visible">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="Loading Series"
+            android:layout_gravity="center_horizontal"/>
+
+        <ProgressBar
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:indeterminate="true"/>
+
+    </LinearLayout>
 
 </LinearLayout>

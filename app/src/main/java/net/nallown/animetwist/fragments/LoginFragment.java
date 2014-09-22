@@ -28,8 +28,6 @@ import java.io.IOException;
  */
 public class LoginFragment extends Fragment {
 	private final String LOG_TAG = getClass().getSimpleName();
-
-	SharedPreferences cachedUser;
 	View view;
 
 	Button loginButton = null;
@@ -43,22 +41,17 @@ public class LoginFragment extends Fragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 	                         Bundle savedInstanceState) {
-		// Cache
-		cachedUser = this.getActivity().getSharedPreferences("USER", Context.MODE_PRIVATE);
+		SharedPreferences cachedUser = getActivity().getSharedPreferences("USER", Context.MODE_PRIVATE);
 
-		// Initialize UI Components
 		view = inflater.inflate(R.layout.fragment_login, container, false);
 
 		registerButton = (TextView) view.findViewById(R.id.login_signup);
 		loginButton = (Button) view.findViewById(R.id.login_submit);
-
 		usernameInput = (EditText) view.findViewById(R.id.login_username);
 		passwordInput = (EditText) view.findViewById(R.id.login_password);
-
 		loginProgressBar = (ProgressBar) view.findViewById(R.id.loginProgress);
 
-		//  Login with cached user if exists
-		if (cachedUser.contains("username")) {
+		if (User.cachedUserExists(getActivity())) {
 			String cachedUsername = cachedUser.getString("username", "");
 			String cachedPassword = cachedUser.getString("password", "");
 
@@ -126,15 +119,11 @@ public class LoginFragment extends Fragment {
 			@Override
 			public void onFinish(User user) {
 				if (user != null) {
-					SharedPreferences.Editor editor = cachedUser.edit();
+					User.storeToCache(username, password, getActivity());
 
-					editor.putString("username", username);
-					editor.putString("password", password);
-
-					editor.apply();
-					Intent chatIntent = new Intent(getActivity(), MainActivity.class)
+					Intent mainIntent = new Intent(getActivity(), MainActivity.class)
 							.putExtra("user", user);
-					startActivity(chatIntent);
+					startActivity(mainIntent);
 					getActivity().finish();
 				} else {
 					usernameInput.setError("Invalid Credentials");

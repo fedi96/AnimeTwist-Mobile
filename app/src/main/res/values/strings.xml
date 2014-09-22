@@ -8,6 +8,7 @@
     <string name="login_screen">Login</string>
     <string name="chat_screen">Shoutbox</string>
     <string name="videos_screen">Anime List</string>
+    <string name="title_activity_series">SeriesActivity</string>
 
     <!-- Button Labels -->
     <string name="button_signup">Signup</string>
@@ -17,11 +18,12 @@
 
     <!-- Menu Buttons -->
     <string name="action_logout">Logout</string>
-    <string name="title_activity_my">MyActivity</string>
-    <string name="title_section1">Section 1</string>
-    <string name="title_section2">Section 2</string>
-    <string name="title_section3">Section 3</string>
-    <string name="action_example">Example action</string>
     <string name="action_settings">Settings</string>
+
+    <!-- Video Player -->
+    <string name="description">Media Controls</string>
+    <string name="title_activity_fullscreen">FullscreenActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
 
 </resources>

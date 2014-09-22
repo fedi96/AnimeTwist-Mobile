@@ -23,7 +23,7 @@ import java.util.List;
 public class UserFetcher extends AsyncTask<Void, Void, Void> {
 	private User user;
 	private RequestStates listener;
-	private String responseStr;
+	private String payload;
 	private String username;
 	private String password;
 
@@ -47,16 +47,14 @@ public class UserFetcher extends AsyncTask<Void, Void, Void> {
 		HttpClient httpClient = new DefaultHttpClient();
 		HttpPost httpPost = new HttpPost("https://animetwist.net/login");
 
-		HttpResponse response = null;
-
 		List<NameValuePair> postData = new ArrayList<NameValuePair>(2);
 		postData.add(new BasicNameValuePair("username", username));
 		postData.add(new BasicNameValuePair("password", password));
 		try {
 			httpPost.setEntity(new UrlEncodedFormEntity(postData));
 
-			response = httpClient.execute(httpPost);
-			responseStr = EntityUtils.toString(response.getEntity());
+			HttpResponse httpResponse = httpClient.execute(httpPost);
+			payload = EntityUtils.toString(httpResponse.getEntity());
 		} catch (IOException e) {
 			listener.onError(e);
 		}
@@ -67,7 +65,7 @@ public class UserFetcher extends AsyncTask<Void, Void, Void> {
 	@Override
 	protected void onPostExecute(Void aVoid) {
 		try {
-			JSONObject responseJson = new JSONObject(responseStr);
+			JSONObject responseJson = new JSONObject(payload);
 			String Status = responseJson.getString("res");
 
 			if (Status.equals("success")) {

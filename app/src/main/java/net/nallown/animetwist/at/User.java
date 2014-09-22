@@ -1,7 +1,13 @@
 package net.nallown.animetwist.at;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class User implements Parcelable {
 	public static final Parcelable.Creator<User> CREATOR = new Parcelable.Creator<User>() {
@@ -35,6 +41,19 @@ public class User implements Parcelable {
 		return SessionID;
 	}
 
+	public String getJsonAuthToken() {
+		JSONObject authJson = new JSONObject();
+
+		try {
+			authJson.put("type", "auth");
+			authJson.put("token", SessionID);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+
+		return authJson.toString();
+	}
+
 	@Override
 	public int describeContents() {
 		return 0;
@@ -46,4 +65,21 @@ public class User implements Parcelable {
 		pc.writeString(SessionID);
 	}
 
+	public static void storeToCache(String username, String password, Activity activity) {
+		SharedPreferences cachedUser = activity.getSharedPreferences("USER", Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = cachedUser.edit();
+
+		editor.putString("username", username);
+		editor.putString("password", password);
+		editor.apply();
+	}
+
+	public static boolean cachedUserExists(Activity activity) {
+		SharedPreferences cachedUser = activity.getSharedPreferences("USER", Context.MODE_PRIVATE);
+
+		if (cachedUser.contains("username")) {
+			return true;
+		}
+		return false;
+	}
 }

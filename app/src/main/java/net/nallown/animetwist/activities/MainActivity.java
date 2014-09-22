@@ -2,7 +2,6 @@ package net.nallown.animetwist.activities;
 
 import android.app.ActionBar;
 import android.app.Activity;
-import android.app.FragmentManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -19,24 +18,24 @@ import net.nallown.animetwist.fragments.VideosFragment;
 public class MainActivity extends Activity {
 	private final String LOG_TAG = getClass().getSimpleName();
 
-	SharedPreferences userSetting;
-
 	User user = null;
 
 	private ChatFragment mNavigationDrawerFragment;
-	private FragmentManager fragmentManager;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		fragmentManager = getFragmentManager();
-
-		userSetting = getSharedPreferences("USER", 0);
 
 		Bundle data = getIntent().getExtras();
 		user = data.getParcelable("user");
 
 		setContentView(R.layout.activity_main);
+
+		if (savedInstanceState == null) {
+			getFragmentManager().beginTransaction()
+					.add(R.id.container, new VideosFragment())
+					.commit();
+		}
 
 		mNavigationDrawerFragment = (ChatFragment)
 				getFragmentManager().findFragmentById(R.id.navigation_drawer);
@@ -44,10 +43,6 @@ public class MainActivity extends Activity {
 		mNavigationDrawerFragment.setUp(
 				R.id.navigation_drawer,
 				(DrawerLayout) findViewById(R.id.drawer_layout));
-
-		fragmentManager.beginTransaction()
-				.replace(R.id.container, VideosFragment.newInstance())
-				.commit();
 	}
 
 	public void setTitle(CharSequence title) {
@@ -70,6 +65,8 @@ public class MainActivity extends Activity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
+		SharedPreferences userSetting = getSharedPreferences("USER", 0);
+
 		int id = item.getItemId();
 
 //	    clear User Cache on option Logout

@@ -2,11 +2,16 @@ package net.nallown.animetwist.at.chat;
 
 import android.app.Activity;
 
+import net.nallown.animetwist.at.User;
 import net.nallown.utils.Network;
+import net.nallown.utils.Notifier;
 import net.nallown.utils.websocket.WebSocket;
 import net.nallown.utils.websocket.WebSocketConnection;
 import net.nallown.utils.websocket.WebSocketException;
 import net.nallown.utils.websocket.WebSocketOptions;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -14,14 +19,24 @@ import java.net.URISyntaxException;
 /**
  * Created by Nasir on 28/08/2014.
  */
-public class SocketHandler implements WebSocket.WebSocketConnectionObserver {
+public class ChatSocket implements WebSocket.WebSocketConnectionObserver {
+	private Activity activity;
+	private User user;
+
 	private SocketStates socketStates = null;
 	private WebSocketOptions webSocketOptions;
 	private WebSocketConnection socketConnection;
 	private URI ServerURI;
 	private String host = null;
 
-	public SocketHandler(String host) {
+	private boolean notificationEnabled = false;
+
+	private boolean firstRun = true;
+	private int messageCount = 0;
+
+	public ChatSocket(String host, User user, Activity activity) {
+		this.user = user;
+		this.activity = activity;
 		this.host = host;
 	}
 
@@ -33,6 +48,8 @@ public class SocketHandler implements WebSocket.WebSocketConnectionObserver {
 	@Override
 	public void onOpen() {
 		socketStates.onOpen();
+
+		messageCount = 0;
 	}
 
 	@Override
@@ -42,7 +59,42 @@ public class SocketHandler implements WebSocket.WebSocketConnectionObserver {
 
 	@Override
 	public void onTextMessage(String payload) {
-		socketStates.onTextMessage(payload);
+		JSONObject messageJsonObj = null;
+		if (payload.equals("keep-alive")) {
+			return;
+		}
+		if (messageCount >= 40 && firstRun) {
+			firstRun = false;
+		}
+
+		try {
+			messageJsonObj = new JSONObject(payload);
+			String msg = messageJsonObj.optString("msg").toLowerCase();
+			String msgUser = messageJsonObj.optString("username").toLowerCase();
+
+			if (!messageJsonObj.has("auth")) {
+				if ((!firstRun && messageCount >= 40) || firstRun) {
+  	    	        // Needs option and keywords
+					if (msg.contains(user.getUsername().toLowerCase())
+						&& !msgUser.equals(user.getUsername().toLowerCase())
+						&& notificationEnabled
+					) {
+						Notifier.showNotification(
+							msgUser + " mentioned you",
+							msg, true, activity
+						);
+					}
+
+					socketStates.onTextMessage(messageJsonObj);
+				}
+
+				if (messageCount != 40) {
+					messageCount++;
+				}
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -92,12 +144,16 @@ public class SocketHandler implements WebSocket.WebSocketConnectionObserver {
 		connect(activity);
 	}
 
+	public void enableNotifications(boolean notificationEnabled) {
+		this.notificationEnabled = notificationEnabled;
+	}
+
 	public static interface SocketStates {
 		public void onOpen();
 
 		public void onClose(WebSocketCloseNotification code, String reason);
 
-		public void onTextMessage(String payload);
+		public void onTextMessage(JSONObject messageJsonObj);
 
 //		public void onRawTextMessage(byte[] payload);
 //

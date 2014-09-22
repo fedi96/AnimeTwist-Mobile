@@ -23,6 +23,11 @@
             android:label="@string/videos_screen"
             android:screenOrientation="portrait" >
         </activity>
+        <activity
+            android:name=".activities.SeriesActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:label="@string/title_activity_series" >
+        </activity>
 
         <receiver
             android:name="net.nallown.utils.NetworkReceiver"

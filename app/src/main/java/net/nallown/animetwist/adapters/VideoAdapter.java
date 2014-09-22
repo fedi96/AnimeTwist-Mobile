@@ -29,7 +29,7 @@ public class VideoAdapter extends ArrayAdapter<Video> {
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		LinearLayout videoView;
-		Video video = getItem(position);
+		final Video video = getItem(position);
 
 		if (convertView == null) {
 			videoView = new LinearLayout(getContext());
@@ -42,8 +42,19 @@ public class VideoAdapter extends ArrayAdapter<Video> {
 			videoView = (LinearLayout) convertView;
 		}
 
-		TextView videoTitle = (TextView) videoView.findViewById(R.id.video_title);
-		ImageView videoThumbnail = (ImageView) videoView.findViewById(R.id.video_thumbnail);
+		final TextView videoTitle = (TextView) videoView.findViewById(R.id.video_title);
+		final TextView ongoing_tag = (TextView) videoView.findViewById(R.id.ongoing_tag);
+		final ImageView thumbnail = (ImageView) videoView.findViewById(R.id.video_thumbnail);
+
+		if (video.isOngoing()) {
+			ongoing_tag.setVisibility(View.VISIBLE);
+		} else {
+			ongoing_tag.setVisibility(View.GONE);
+		}
+
+		thumbnail.setImageBitmap(video.getThumbnail());
+		thumbnail.setScaleType(ImageView.ScaleType.CENTER_CROP);
+		thumbnail.setAlpha(0.9f);
 
 		videoTitle.setText(video.getTitle());
 
