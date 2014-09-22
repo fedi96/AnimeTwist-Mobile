@@ -2,12 +2,14 @@ package net.nallown.animetwist.activities;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -16,9 +18,10 @@ import android.view.WindowManager;
 import android.widget.FrameLayout;
 
 import net.nallown.animetwist.R;
+import net.nallown.animetwist.VideoControllerView;
+import net.nallown.animetwist.at.User;
 import net.nallown.animetwist.at.series.Series;
 import net.nallown.animetwist.at.series.SeriesFetcher;
-import net.nallown.animetwist.VideoControllerView;
 import net.nallown.utils.UIUtils;
 
 import java.io.IOException;
@@ -27,7 +30,8 @@ public class SeriesActivity extends Activity
 		implements SurfaceHolder.Callback,
 		MediaPlayer.OnPreparedListener,
 		VideoControllerView.MediaPlayerControl,
-		View.OnSystemUiVisibilityChangeListener {
+		View.OnSystemUiVisibilityChangeListener,
+		SeriesFetcher.RequestStates {
 	private boolean playerPrepared = false;
 	private boolean resume;
 
@@ -45,25 +49,38 @@ public class SeriesActivity extends Activity
 		actionBar = getActionBar();
 
 		SeriesFetcher seriesFetcher = new SeriesFetcher(folderName);
-		seriesFetcher.setRequestStates(new SeriesFetcher.RequestStates() {
-			@Override
-			public void onError(Exception e) {
-				e.printStackTrace();
-			}
-
-			@Override
-			public void onStart() {
-			}
-
-			@Override
-			public void onFinish(Series series) {
-				packSeries(series);
-			}
-		});
+		seriesFetcher.setRequestStates(this);
 		seriesFetcher.execute();
 	}
 
-	private void packSeries(Series series) {
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		int id = item.getItemId();
+
+//	    clear User Cache on option Logout
+		if (id == R.id.action_logout) {
+			User.clearCachedUser(this);
+
+			Intent loginIntent = new Intent(this, LoginActivity.class);
+			startActivity(loginIntent);
+			finish();
+
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	public void onFetchError(Exception e) {
+		e.printStackTrace();
+	}
+
+	@Override
+	public void onFetchStart() {
+	}
+
+	@Override
+	public void onFetchFinish(Series series) {
 		actionBar.setTitle(series.getTitle());
 
 		setContentView(R.layout.activty_series);
@@ -100,7 +117,6 @@ public class SeriesActivity extends Activity
 
 	@Override
 	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-
 	}
 
 	@Override
@@ -113,7 +129,6 @@ public class SeriesActivity extends Activity
 
 	@Override
 	public void surfaceDestroyed(SurfaceHolder holder) {
-
 	}
 
 	@Override
@@ -241,6 +256,7 @@ public class SeriesActivity extends Activity
 			toggleFullScreen();
 			return;
 		}
+
 		super.onBackPressed();
 	}
 
@@ -250,5 +266,4 @@ public class SeriesActivity extends Activity
 			controller.show();
 		}
 	}
-
 }

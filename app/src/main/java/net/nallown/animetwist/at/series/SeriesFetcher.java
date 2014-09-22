@@ -34,7 +34,7 @@ public class SeriesFetcher extends AsyncTask {
 	@Override
 	protected void onPreExecute() {
 		super.onPreExecute();
-		requestStates.onStart();
+		requestStates.onFetchStart();
 	}
 
 	@Override
@@ -46,7 +46,7 @@ public class SeriesFetcher extends AsyncTask {
 			HttpResponse httpResponse = httpClient.execute(httpGet);
 			payload = EntityUtils.toString(httpResponse.getEntity());
 		} catch (IOException e) {
-			requestStates.onError(e);
+			requestStates.onFetchError(e);
 		}
 
 		return null;
@@ -68,17 +68,17 @@ public class SeriesFetcher extends AsyncTask {
 			}
 
 		} catch (JSONException e) {
-			requestStates.onError(e);
+			requestStates.onFetchError(e);
 		}
 
-		requestStates.onFinish(new Series(title, episodeList));
+		requestStates.onFetchFinish(new Series(title, episodeList));
 	}
 
 	public static interface RequestStates{
 
-		public void onError(Exception e);
-		public void onStart();
-		public void onFinish(Series series);
+		public void onFetchError(Exception e);
+		public void onFetchStart();
+		public void onFetchFinish(Series series);
 
 	}
 }

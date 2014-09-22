@@ -29,7 +29,7 @@ public class VideoFetcher extends AsyncTask{
 	@Override
 	protected void onPreExecute() {
 		super.onPreExecute();
-		requestStates.onStart();
+		requestStates.onFetchStart();
 	}
 
 	@Override
@@ -42,7 +42,7 @@ public class VideoFetcher extends AsyncTask{
 			HttpResponse httpResponse = httpClient.execute(httpGet);
 			payload = EntityUtils.toString(httpResponse.getEntity());
 		} catch (IOException e) {
-			requestStates.onError(e);
+			requestStates.onFetchError(e);
 		}
 
 		return null;
@@ -61,21 +61,21 @@ public class VideoFetcher extends AsyncTask{
 				try {
 					videoArrayList.add(Video.parseVideo(videoJson));
 				} catch (IOException e) {
-					requestStates.onError(e);
+					requestStates.onFetchError(e);
 				}
 			}
 		} catch (JSONException e) {
-			requestStates.onError(e);
+			requestStates.onFetchError(e);
 		}
 
-		requestStates.onFinish(videoArrayList);
+		requestStates.onFetchFinish(videoArrayList);
 	}
 
 	public static interface RequestStates{
 
-		public void onError(Exception e);
-		public void onStart();
-		public void onFinish(ArrayList<Video> videoArrayList);
+		public void onFetchError(Exception e);
+		public void onFetchStart();
+		public void onFetchFinish(ArrayList<Video> videoArrayList);
 
 	}
 }

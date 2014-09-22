@@ -47,14 +47,14 @@ public class ChatSocket implements WebSocket.WebSocketConnectionObserver {
 
 	@Override
 	public void onOpen() {
-		socketStates.onOpen();
+		socketStates.onSocketOpen();
 
 		messageCount = 0;
 	}
 
 	@Override
 	public void onClose(WebSocketCloseNotification code, String reason) {
-		socketStates.onClose(code, reason);
+		socketStates.onSocketClose(code, reason);
 	}
 
 	@Override
@@ -85,7 +85,7 @@ public class ChatSocket implements WebSocket.WebSocketConnectionObserver {
 						);
 					}
 
-					socketStates.onTextMessage(messageJsonObj);
+					socketStates.onSocketMessage(messageJsonObj);
 				}
 
 				if (messageCount != 40) {
@@ -111,6 +111,18 @@ public class ChatSocket implements WebSocket.WebSocketConnectionObserver {
 		socketConnection.sendTextMessage(msg);
 	}
 
+	public void sendUser(User user) {
+		JSONObject authJson = new JSONObject();
+		try {
+			authJson.put("type", "auth");
+			authJson.put("token", user.getSessionID());
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+
+		socketConnection.sendTextMessage(authJson.toString());
+	}
+
 	public WebSocketConnection getSocket() {
 		return socketConnection;
 	}
@@ -130,10 +142,12 @@ public class ChatSocket implements WebSocket.WebSocketConnectionObserver {
 			ServerURI = new URI(host);
 			socketConnection.connect(ServerURI, this, webSocketOptions);
 		} catch (URISyntaxException e) {
-			this.socketStates.onError(e);
+			this.socketStates.onSocketError(e);
 		} catch (WebSocketException e) {
-			this.socketStates.onError(e);
+			this.socketStates.onSocketError(e);
 		}
+
+		sendUser(user);
 	}
 
 	public void reConnect(Activity activity) {
@@ -149,16 +163,16 @@ public class ChatSocket implements WebSocket.WebSocketConnectionObserver {
 	}
 
 	public static interface SocketStates {
-		public void onOpen();
+		public void onSocketOpen();
 
-		public void onClose(WebSocketCloseNotification code, String reason);
+		public void onSocketClose(WebSocketCloseNotification code, String reason);
 
-		public void onTextMessage(JSONObject messageJsonObj);
+		public void onSocketMessage(JSONObject messageJsonObj);
 
 //		public void onRawTextMessage(byte[] payload);
 //
 //		public void onBinaryMessage(byte[] payload);
 
-		public void onError(Exception e);
+		public void onSocketError(Exception e);
 	}
 }

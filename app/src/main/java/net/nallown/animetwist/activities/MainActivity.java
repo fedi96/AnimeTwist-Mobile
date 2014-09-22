@@ -12,7 +12,7 @@ import android.view.MenuItem;
 import net.nallown.animetwist.R;
 import net.nallown.animetwist.at.User;
 import net.nallown.animetwist.fragments.ChatFragment;
-import net.nallown.animetwist.fragments.VideosFragment;
+import net.nallown.animetwist.fragments.SeriesListFragment;
 
 
 public class MainActivity extends Activity {
@@ -33,7 +33,7 @@ public class MainActivity extends Activity {
 
 		if (savedInstanceState == null) {
 			getFragmentManager().beginTransaction()
-					.add(R.id.container, new VideosFragment())
+					.add(R.id.container, new SeriesListFragment())
 					.commit();
 		}
 

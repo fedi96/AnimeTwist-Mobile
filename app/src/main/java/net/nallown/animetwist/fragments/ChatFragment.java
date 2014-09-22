@@ -2,7 +2,6 @@ package net.nallown.animetwist.fragments;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -38,7 +37,9 @@ import java.util.ArrayList;
  * Created by Nasir on 26/08/2014.
  */
 
-public class ChatFragment extends Fragment {
+public class ChatFragment extends Fragment
+	implements NetworkReceiver.onNetworkChangeListener,
+	ChatSocket.SocketStates {
 	private final String LOG_TAG = getClass().getSimpleName();
 	private String DRAWER_STATE_TITLE = "DRAWER_STATE";
 
@@ -60,7 +61,7 @@ public class ChatFragment extends Fragment {
 	private User user = null;
 	private ChatSocket chatSocket = null;
 
-	private NetworkReceiver networkReceiver = new NetworkReceiver();
+	private NetworkReceiver networkReceiver = null;
 
 	private long disconnectTime = -1;
 
@@ -101,7 +102,9 @@ public class ChatFragment extends Fragment {
 		messageListView.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
 		messageListView.setStackFromBottom(true);
 
-		socketManager();
+		chatSocket = new ChatSocket("wss://animetwist.net:9000", user, getActivity());
+		chatSocket.setSocketStates(this);
+		chatSocket.connect(getActivity());
 
 		messageField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
 			@Override
@@ -129,27 +132,8 @@ public class ChatFragment extends Fragment {
 			}
 		});
 
-		networkReceiver.setOnNetworkChangeListener(new NetworkReceiver.onNetworkChangeListener() {
-			@Override
-			public void onNetworkChange(boolean connected) {
-				if (connected) {
-					chatSocket.reConnect(getActivity());
-					messageField.setEnabled(true);
-					messageField.setHint("...");
-				} else {
-					messageField.setEnabled(false);
-					messageField.setHint("No network connection...");
-
-					messages.add(Message.notify("Lost network connection"));
-
-					messageAdapter.notifyDataSetChanged();
-					Notifier.showNotification(
-							"Connection lost...", "Anime Twist has lost connection.",
-							false, getActivity()
-					);
-				}
-			}
-		});
+		networkReceiver = new NetworkReceiver();
+		networkReceiver.setOnNetworkChangeListener(this);
 
 		return view;
 	}
@@ -157,36 +141,6 @@ public class ChatFragment extends Fragment {
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
-	}
-
-	private void socketManager() {
-		chatSocket = new ChatSocket("wss://animetwist.net:9000", user, getActivity());
-
-		chatSocket.setSocketStates(new ChatSocket.SocketStates() {
-			@Override
-			public void onOpen() {
-				chatSocket.sendMessage(user.getJsonAuthToken());
-			}
-
-			@Override
-			public void onClose(WebSocket.WebSocketConnectionObserver.WebSocketCloseNotification code, String reason) {
-				Notifier.showNotification("Socket Closed", reason, true, getActivity());
-				Log.e(LOG_TAG, "socket closed");
-			}
-
-			@Override
-			public void onTextMessage(JSONObject messageJsonObj) {
-				messages.add(Message.parseMessage(messageJsonObj));
-				messageAdapter.notifyDataSetChanged();
-			}
-
-			@Override
-			public void onError(Exception e) {
-				e.printStackTrace();
-			}
-		});
-
-		chatSocket.connect(getActivity());
 	}
 
 	@Override
@@ -199,47 +153,33 @@ public class ChatFragment extends Fragment {
 	@Override
 	public void onResume() {
 		chatSocket.enableNotifications(false);
+		chatSocket.reConnect(getActivity());
 
 		//FIXME Remove when session has been set to last one Month
 		if (disconnectTime != -1 && System.currentTimeMillis() - disconnectTime > ((60 * 1000) * 60)) {
-			chatSocket.reConnect(getActivity());
-			final SharedPreferences cachedUser = getActivity().getSharedPreferences("USER", Context.MODE_PRIVATE);
-
-			final String cachedUsername = cachedUser.getString("username", "");
-			final String cachedPassword = cachedUser.getString("password", "");
-
-			UserFetcher userFetcher = new UserFetcher(cachedUsername, cachedPassword);
+			UserFetcher userFetcher = new UserFetcher(user.getUsername(), user.getPassword());
 
 			userFetcher.setRequestStates(new UserFetcher.RequestStates() {
 				@Override
-				public void onError(Exception e) {
+				public void onFetchError(Exception e) {
 					e.printStackTrace();
 				}
 
 
 				@Override
-				public void onStart() {
+				public void onFetchStart() {
 				}
 
 				@Override
-				public void onFinish(User user) {
+				public void onFetchFinish(User user) {
 					if (user != null) {
-						JSONObject authJson = new JSONObject();
-						try {
-							authJson.put("type", "auth");
-							authJson.put("token", user.getSessionID());
-						} catch (JSONException e) {
-							e.printStackTrace();
-						}
-
-						chatSocket.sendMessage(authJson.toString());
-
+						chatSocket.sendUser(user);
 						Log.i(LOG_TAG, "Reconnected to socket");
 					}
 				}
 			});
-
 			userFetcher.execute();
+
 		}
 
 		super.onResume();
@@ -305,5 +245,46 @@ public class ChatFragment extends Fragment {
 
 	public DrawerLayout getDrawerLayout() {
 		return mDrawerLayout;
+	}
+
+	@Override
+	public void onNetworkChange(boolean connected) {
+		if (connected) {
+			chatSocket.reConnect(getActivity());
+			messageField.setEnabled(true);
+			messageField.setHint("...");
+		} else {
+			messageField.setEnabled(false);
+			messageField.setHint("No network connection...");
+
+			messages.add(Message.notify("Lost network connection"));
+
+			messageAdapter.notifyDataSetChanged();
+			Notifier.showNotification(
+					"Connection lost...", "Anime Twist has lost connection.",
+					false, getActivity()
+			);
+		}
+	}
+
+	@Override
+	public void onSocketOpen() {
+	}
+
+	@Override
+	public void onSocketClose(WebSocket.WebSocketConnectionObserver.WebSocketCloseNotification code, String reason) {
+		Notifier.showNotification("Socket Closed", reason, true, getActivity());
+		Log.e(LOG_TAG, "socket closed");
+	}
+
+	@Override
+	public void onSocketMessage(JSONObject messageJsonObj) {
+		messages.add(Message.parseMessage(messageJsonObj));
+		messageAdapter.notifyDataSetChanged();
+	}
+
+	@Override
+	public void onSocketError(Exception e) {
+		e.printStackTrace();
 	}
 }

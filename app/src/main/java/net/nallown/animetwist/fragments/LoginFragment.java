@@ -1,9 +1,7 @@
 package net.nallown.animetwist.fragments;
 
 import android.app.Fragment;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -26,23 +24,22 @@ import java.io.IOException;
 /**
  * Created by Nasir on 24/08/2014.
  */
-public class LoginFragment extends Fragment {
+public class LoginFragment extends Fragment implements UserFetcher.RequestStates {
 	private final String LOG_TAG = getClass().getSimpleName();
-	View view;
+	private View view;
 
-	Button loginButton = null;
-	TextView registerButton = null;
-	EditText usernameInput = null;
-	EditText passwordInput = null;
-	ProgressBar loginProgressBar = null;
+	private Button loginButton = null;
+	private TextView registerButton = null;
+	private EditText usernameInput = null;
+	private EditText passwordInput = null;
+	private ProgressBar loginProgressBar = null;
 
-	private User user;
+	private String usernameInputStr;
+	private String passwordInputStr;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 	                         Bundle savedInstanceState) {
-		SharedPreferences cachedUser = getActivity().getSharedPreferences("USER", Context.MODE_PRIVATE);
-
 		view = inflater.inflate(R.layout.fragment_login, container, false);
 
 		registerButton = (TextView) view.findViewById(R.id.login_signup);
@@ -52,34 +49,33 @@ public class LoginFragment extends Fragment {
 		loginProgressBar = (ProgressBar) view.findViewById(R.id.loginProgress);
 
 		if (User.cachedUserExists(getActivity())) {
-			String cachedUsername = cachedUser.getString("username", "");
-			String cachedPassword = cachedUser.getString("password", "");
+			User cachedUser = User.getCachedUser(getActivity());
+			usernameInputStr = cachedUser.getUsername();
+			passwordInputStr = cachedUser.getUsername();
 
-			loginSubmit(cachedUsername, cachedPassword);
+			loginSubmit();
 		}
 
-		// Listen to register button and redirect to Register
 		registerButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				Intent browserIntent =
-						new Intent(Intent.ACTION_VIEW, Uri.parse("http://twist.moe/register"));
+						new Intent(Intent.ACTION_VIEW, Uri.parse("http://animetwist.net/register"));
 				startActivity(browserIntent);
 			}
 		});
 
-		// Set login button listener
 		loginButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				String usernameInputStr = usernameInput.getText().toString().trim();
-				String passwordInputStr = passwordInput.getText().toString();
+				usernameInputStr = usernameInput.getText().toString().trim();
+				passwordInputStr = passwordInput.getText().toString();
 
 				if (usernameInputStr.length() <= 3) {
 					usernameInput.setError("Invalid username");
 				} else if (passwordInputStr.length() <= 6) {
 					passwordInput.setError("Invalid password");
 				} else {
-					loginSubmit(usernameInputStr, passwordInputStr);
+					loginSubmit();
 				}
 			}
 		});
@@ -87,57 +83,52 @@ public class LoginFragment extends Fragment {
 		return view;
 	}
 
-	// Login the user and cache, return True if successful
-	public void loginSubmit(final String username, final String password) {
+	public void loginSubmit() {
+		UserFetcher userFetcher = new UserFetcher(usernameInputStr, passwordInputStr);
+		userFetcher.setRequestStates(this);
+		userFetcher.execute();
+	}
+
+	@Override
+	public void onFetchError(Exception e) {
 		final Toast noNetworkToast = Toast.makeText(
 				getActivity(), "Failed to connect to the Anime Twist servers.", Toast.LENGTH_LONG);
 
-		UserFetcher userFetcher = new UserFetcher(username, password);
+		if (e instanceof IOException) {
+			noNetworkToast.show();
+		} else {
+			e.printStackTrace();
+		}
+	}
 
-		userFetcher.setRequestStates(new UserFetcher.RequestStates() {
-			@Override
-			public void onError(Exception e) {
-				if (e instanceof IOException) {
-					noNetworkToast.show();
-				} else {
-					e.printStackTrace();
-				}
-			}
+	@Override
+	public void onFetchFinish(User user) {
+		if (user != null) {
+			User.storeCachedUser(user, getActivity());
 
-			@Override
-			public void onStart() {
-				// Disable input and show loader
-				loginProgressBar.setVisibility(View.VISIBLE);
-				usernameInput.setEnabled(false);
-				passwordInput.setEnabled(false);
-				loginButton.setEnabled(false);
+			Intent mainIntent = new Intent(getActivity(), MainActivity.class)
+					.putExtra("user", user);
+			startActivity(mainIntent);
+			getActivity().finish();
+		} else {
+			loginProgressBar.setVisibility(View.GONE);
+			usernameInput.setEnabled(true);
+			passwordInput.setEnabled(true);
+			loginButton.setEnabled(true);
 
-				usernameInput.setText(username);
-				passwordInput.setText(password);
-			}
+			usernameInput.setError("Invalid Credentials");
+			usernameInput.requestFocus();
+		}
+	}
 
-			@Override
-			public void onFinish(User user) {
-				if (user != null) {
-					User.storeToCache(username, password, getActivity());
+	@Override
+	public void onFetchStart() {
+		loginProgressBar.setVisibility(View.VISIBLE);
+		usernameInput.setEnabled(false);
+		passwordInput.setEnabled(false);
+		loginButton.setEnabled(false);
 
-					Intent mainIntent = new Intent(getActivity(), MainActivity.class)
-							.putExtra("user", user);
-					startActivity(mainIntent);
-					getActivity().finish();
-				} else {
-					usernameInput.setError("Invalid Credentials");
-					usernameInput.requestFocus();
-				}
-
-				// Enable input just in case wrong credentials and hide loader
-				loginProgressBar.setVisibility(View.GONE);
-				usernameInput.setEnabled(true);
-				passwordInput.setEnabled(true);
-				loginButton.setEnabled(true);
-			}
-		});
-
-		userFetcher.execute();
+		usernameInput.setText(usernameInputStr);
+		passwordInput.setText(passwordInputStr);
 	}
 }

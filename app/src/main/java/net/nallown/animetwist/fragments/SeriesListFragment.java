@@ -28,7 +28,7 @@ import java.util.ArrayList;
  * A simple {@link Fragment} subclass.
  *
  */
-public class VideosFragment extends Fragment {
+public class SeriesListFragment extends Fragment implements VideoFetcher.RequestStates {
 	private final String LOG_TAG = getClass().getSimpleName();
 
 	private ArrayList<Video> videos = null;
@@ -38,7 +38,7 @@ public class VideosFragment extends Fragment {
 	private EditText searchEditText;
 	private LinearLayout fetchingVideos;
 
-    public VideosFragment() {
+    public SeriesListFragment() {
     }
 
 
@@ -56,65 +56,74 @@ public class VideosFragment extends Fragment {
 	    videoAdapter = new VideoAdapter(getActivity(), R.layout.list_item_video, videos);
 
 	    videoListView.setAdapter(videoAdapter);
-		videoListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-				String seriesFolder = videos.get(i).getFolder();
-				Intent videoIntent = new Intent(getActivity(), SeriesActivity.class);
-				videoIntent.putExtra("folder_name", seriesFolder);
+		videoListView.setOnItemClickListener(onVideoClick);
 
-				startActivity(videoIntent);
-			}
-		});
-
-		VideoFetcher videoFetcher = new VideoFetcher(new VideoFetcher.RequestStates() {
-		    @Override
-		    public void onError(Exception e) {
-			    e.printStackTrace();
-		    }
-
-		    @Override
-		    public void onStart() {
-			    fetchingVideos.setVisibility(View.VISIBLE);
-		    }
-
-		    @Override
-		    public void onFinish(ArrayList<Video> videoArrayList) {
-			    fetchingVideos.setVisibility(View.GONE);
-			    searchEditText.setVisibility(View.VISIBLE);
-
-			    packArrayLists(videoArrayList);
-		    }
-	    });
+		VideoFetcher videoFetcher = new VideoFetcher(this);
 		videoFetcher.execute();
 
-	    searchEditText.addTextChangedListener(new TextWatcher() {
-		    @Override
-		    public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {
-		    }
-
-		    @Override
-		    public void onTextChanged(CharSequence searchInput, int i, int i2, int i3) {
-			    String searchString = searchInput.toString().toLowerCase().trim();
-
-				sortListView(searchString);
-		    }
-
-		    @Override
-		    public void afterTextChanged(Editable editable) {
-		    }
-	    });
+	    searchEditText.addTextChangedListener(onSearchEdit);
 
         return view;
     }
 
-	private void packArrayLists(ArrayList<Video> videoArrayList) {
+	AdapterView.OnItemClickListener onVideoClick = new AdapterView.OnItemClickListener() {
+		@Override
+		public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+			String seriesFolder = videos.get(i).getFolder();
+			Intent videoIntent = new Intent(getActivity(), SeriesActivity.class);
+			videoIntent.putExtra("folder_name", seriesFolder);
+
+			startActivity(videoIntent);
+		}
+	};
+
+	TextWatcher onSearchEdit = new TextWatcher() {
+		@Override
+		public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {
+		}
+
+		@Override
+		public void onTextChanged(CharSequence searchInput, int i, int i2, int i3) {
+			String searchString = searchInput.toString().toLowerCase().trim();
+			sortListView(searchString);
+		}
+
+		@Override
+		public void afterTextChanged(Editable editable) {
+		}
+	};
+
+	private void sortListView(String searchStr) {
+		videos.clear();
+		for (Video video: allVideos) {
+			if (video.getTitle().toLowerCase().contains(searchStr)) {
+				videos.add(video);
+			}
+		}
+
+		videoAdapter.notifyDataSetChanged();
+	}
+
+	@Override
+	public void onFetchError(Exception e) {
+		e.printStackTrace();
+	}
+
+	@Override
+	public void onFetchStart() {
+		fetchingVideos.setVisibility(View.VISIBLE);
+	}
+
+	@Override
+	public void onFetchFinish(ArrayList<Video> videoArrayList) {
+		fetchingVideos.setVisibility(View.GONE);
+		searchEditText.setVisibility(View.VISIBLE);
+
 		for (final Video video : videoArrayList) {
 			ThumbnailFetcher thumbnailFetcher = new ThumbnailFetcher(video.getThumbnailUrl());
 			thumbnailFetcher.setRequestStates(new ThumbnailFetcher.RequestStates() {
 				@Override
 				public void onError(Exception e) {
-
 				}
 
 				@Override
@@ -128,16 +137,5 @@ public class VideosFragment extends Fragment {
 			});
 			thumbnailFetcher.execute();
 		}
-	}
-
-	private void sortListView(String searchStr) {
-		videos.clear();
-		for (Video video: allVideos) {
-			if (video.getTitle().toLowerCase().contains(searchStr)) {
-				videos.add(video);
-			}
-		}
-
-		videoAdapter.notifyDataSetChanged();
 	}
 }
