@@ -7,9 +7,9 @@ The Android application allows you to take this on the move with you, you can fr
 
 Screenshots
 ---
-![Login](http://i.imgur.com/di9lVLk.png "Login Screen")
-![Series](http://i.imgur.com/pU5srVd.png "Series Listing Screen")
-![Chat](http://i.imgur.com/X2h0goC.png "Realtime Chat")
+![Login](http://i.imgur.com/sxYJqM1.png "Login Screen")
+![Series](http://i.imgur.com/To0MfE7.png "Series Listing Screen")
+![Chat](http://i.imgur.com/QEwVZfF.png "Realtime Chat")
 
 Finished
 ----
