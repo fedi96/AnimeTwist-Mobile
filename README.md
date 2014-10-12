@@ -39,7 +39,7 @@ Version
 Solutions Used
 -----------
 
-[Anime Twist] uses a number of solution to keep its services efficient and secure, these include as following:
+[Anime Twist] uses a number of solution to keep its services efficient and secure, these are as following:
 * [WebSocket] - web based socket protocol used to provide realtime and simple chat services.
 * [Go] - *C* based programming language used to run the server side of the website in including the WebSocket and the Server Side Applications.
 * [MariaDB] - Fork of MySQL with many security, efficiency and future patches used to store all the long term data in.
