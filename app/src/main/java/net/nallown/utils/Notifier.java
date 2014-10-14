@@ -34,7 +34,6 @@ public class Notifier {
 
 	public static void cancelNotification(Context context, int notificationId) {
 		if (Context.NOTIFICATION_SERVICE != null) {
-			String ns = Context.NOTIFICATION_SERVICE;
 			NotificationManager mNotificationManager =
 					(NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 			mNotificationManager.cancel(notificationId);

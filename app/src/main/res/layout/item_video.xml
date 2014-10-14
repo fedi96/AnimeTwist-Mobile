@@ -18,14 +18,10 @@
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="70dp"
-        android:textAppearance="@android:style/TextAppearance.Large"
         android:text="Video Title"
         android:id="@+id/video_title"
-        android:background="@drawable/title_gradient"
         android:layout_alignBottom="@+id/video_thumbnail"
-        android:alpha="0.9"
-        android:padding="10dp"
-        android:gravity="bottom"/>
+        style="@style/TextView.SeriesTitle"/>
 
     <TextView
         android:layout_width="wrap_content"

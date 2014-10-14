@@ -27,6 +27,17 @@
         <item name="android:background">@drawable/actionbar_bg</item>
     </style>
 
+    <style name="TextView.SeriesTitle" parent="android:Widget.TextView">
+        <item name="android:textSize">20dp</item>
+        <item name="android:textColor">#fff</item>
+        <item name="android:padding">5dp</item>
+        <item name="android:gravity">bottom</item>
+        <item name="android:shadowColor">#000000</item>
+        <item name="android:shadowDx">1</item>
+        <item name="android:shadowDy">1</item>
+        <item name="android:shadowRadius">1</item>
+    </style>
+
     <style name="TextView.Ongoing" parent="android:Widget.TextView">
         <item name="android:background">@color/red</item>
         <item name="android:textColor">#ffffff</item>

@@ -23,7 +23,13 @@
 
         <ImageButton android:id="@+id/pause"
                      style="@android:style/MediaButton.Play"
-                     android:contentDescription="@string/description" />
+                     android:contentDescription="@string/description"
+                     android:visibility="gone"/>
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/loading"/>
 
         <ImageButton android:id="@+id/ffwd"
                      style="@android:style/MediaButton.Ffwd"

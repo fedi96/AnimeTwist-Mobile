@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
@@ -30,6 +31,7 @@ public class VideoControllerView extends FrameLayout {
 	private View                mRoot;
 	private SeekBar             mProgress;
 	private TextView            mEndTime, mCurrentTime;
+	private ProgressBar         mBuffering;
 	private boolean             mShowing;
 	private boolean             mDragging;
 	private static final int    sDefaultTimeout = 3000;
@@ -77,6 +79,12 @@ public class VideoControllerView extends FrameLayout {
 	public void onFinishInflate() {
 		if (mRoot != null)
 			initControllerView(mRoot);
+	}
+
+	public void setEndTime(String val) {
+		if (mEndTime != null) {
+			mEndTime.setText(val);
+		}
 	}
 
 	public void setMediaPlayer(MediaPlayerControl player) {
@@ -170,6 +178,8 @@ public class VideoControllerView extends FrameLayout {
 		mCurrentTime = (TextView) v.findViewById(R.id.time_current);
 		mFormatBuilder = new StringBuilder();
 		mFormatter = new Formatter(mFormatBuilder, Locale.getDefault());
+
+		mBuffering = (ProgressBar) v.findViewById(R.id.loading);
 
 		installPrevNextListeners();
 	}
@@ -443,6 +453,10 @@ public class VideoControllerView extends FrameLayout {
 	@Override
 	public void setEnabled(boolean enabled) {
 		if (mPauseButton != null) {
+			if (enabled && mPauseButton.getVisibility() == GONE) {
+				mPauseButton.setVisibility(VISIBLE);
+				mBuffering.setVisibility(GONE);
+			}
 			mPauseButton.setEnabled(enabled);
 		}
 		if (mFfwdButton != null) {

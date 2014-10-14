@@ -10,8 +10,7 @@ import android.util.Log;
  */
 public class NetworkReceiver extends BroadcastReceiver {
 
-	private static onNetworkChangeListener networkStates;
-	private static boolean currentNetworkStatus = true;
+	public static onNetworkChangeListener networkStates;
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
@@ -19,8 +18,6 @@ public class NetworkReceiver extends BroadcastReceiver {
 
 		networkStates.onNetworkChange(networkStatus);
 		Log.e("NetworkReceiver", "Network Changed");
-
-		currentNetworkStatus = networkStatus;
 	}
 
 	public void setOnNetworkChangeListener(onNetworkChangeListener networkChangeListener) {

@@ -53,7 +53,7 @@ public class SeriesListFragment extends Fragment implements VideoFetcher.Request
 
 	    videos = new ArrayList<Video>();
 	    allVideos = new ArrayList<Video>();
-	    videoAdapter = new VideoAdapter(getActivity(), R.layout.list_item_video, videos);
+	    videoAdapter = new VideoAdapter(getActivity(), R.layout.item_video, videos);
 
 	    videoListView.setAdapter(videoAdapter);
 		videoListView.setOnItemClickListener(onVideoClick);

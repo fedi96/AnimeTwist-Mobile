@@ -51,7 +51,7 @@ public class LoginFragment extends Fragment implements UserFetcher.RequestStates
 		if (User.cachedUserExists(getActivity())) {
 			User cachedUser = User.getCachedUser(getActivity());
 			usernameInputStr = cachedUser.getUsername();
-			passwordInputStr = cachedUser.getUsername();
+			passwordInputStr = cachedUser.getPassword();
 
 			loginSubmit();
 		}
@@ -115,6 +115,7 @@ public class LoginFragment extends Fragment implements UserFetcher.RequestStates
 			usernameInput.setEnabled(true);
 			passwordInput.setEnabled(true);
 			loginButton.setEnabled(true);
+			registerButton.setEnabled(true);
 
 			usernameInput.setError("Invalid Credentials");
 			usernameInput.requestFocus();
@@ -127,6 +128,7 @@ public class LoginFragment extends Fragment implements UserFetcher.RequestStates
 		usernameInput.setEnabled(false);
 		passwordInput.setEnabled(false);
 		loginButton.setEnabled(false);
+		registerButton.setEnabled(false);
 
 		usernameInput.setText(usernameInputStr);
 		passwordInput.setText(passwordInputStr);

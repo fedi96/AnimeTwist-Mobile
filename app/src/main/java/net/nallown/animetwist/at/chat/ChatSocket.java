@@ -4,7 +4,6 @@ import android.app.Activity;
 
 import net.nallown.animetwist.at.User;
 import net.nallown.utils.Network;
-import net.nallown.utils.Notifier;
 import net.nallown.utils.websocket.WebSocket;
 import net.nallown.utils.websocket.WebSocketConnection;
 import net.nallown.utils.websocket.WebSocketException;
@@ -29,11 +28,6 @@ public class ChatSocket implements WebSocket.WebSocketConnectionObserver {
 	private URI ServerURI;
 	private String host = null;
 
-	private boolean notificationEnabled = false;
-
-	private boolean firstRun = true;
-	private int messageCount = 0;
-
 	public ChatSocket(String host, User user, Activity activity) {
 		this.user = user;
 		this.activity = activity;
@@ -48,8 +42,6 @@ public class ChatSocket implements WebSocket.WebSocketConnectionObserver {
 	@Override
 	public void onOpen() {
 		socketStates.onSocketOpen();
-
-		messageCount = 0;
 	}
 
 	@Override
@@ -59,38 +51,16 @@ public class ChatSocket implements WebSocket.WebSocketConnectionObserver {
 
 	@Override
 	public void onTextMessage(String payload) {
-		JSONObject messageJsonObj = null;
 		if (payload.equals("keep-alive")) {
 			return;
 		}
-		if (messageCount >= 40 && firstRun) {
-			firstRun = false;
-		}
 
 		try {
-			messageJsonObj = new JSONObject(payload);
-			String msg = messageJsonObj.optString("msg").toLowerCase();
-			String msgUser = messageJsonObj.optString("username").toLowerCase();
-
+			JSONObject messageJsonObj = new JSONObject(payload);
 			if (!messageJsonObj.has("auth")) {
-				if ((!firstRun && messageCount >= 40) || firstRun) {
-  	    	        // Needs option and keywords
-					if (msg.contains(user.getUsername().toLowerCase())
-						&& !msgUser.equals(user.getUsername().toLowerCase())
-						&& notificationEnabled
-					) {
-						Notifier.showNotification(
-							msgUser + " mentioned you",
-							msg, true, activity
-						);
-					}
+				Message message = Message.parseMessage(messageJsonObj);
 
-					socketStates.onSocketMessage(messageJsonObj);
-				}
-
-				if (messageCount != 40) {
-					messageCount++;
-				}
+				socketStates.onSocketMessage(message);
 			}
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -158,16 +128,12 @@ public class ChatSocket implements WebSocket.WebSocketConnectionObserver {
 		connect(activity);
 	}
 
-	public void enableNotifications(boolean notificationEnabled) {
-		this.notificationEnabled = notificationEnabled;
-	}
-
 	public static interface SocketStates {
 		public void onSocketOpen();
 
 		public void onSocketClose(WebSocketCloseNotification code, String reason);
 
-		public void onSocketMessage(JSONObject messageJsonObj);
+		public void onSocketMessage(Message message);
 
 //		public void onRawTextMessage(byte[] payload);
 //

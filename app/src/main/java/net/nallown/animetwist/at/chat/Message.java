@@ -8,22 +8,23 @@ import org.json.JSONObject;
  * Created by Nasir on 27/08/2014.
  */
 public final class Message {
+	private static boolean notificationEnabled = false;
 	private String username;
 	private String message;
-	private boolean donation;
+	private boolean donator;
 	private boolean admin;
 
 	public Message(String username, String message, boolean admin, boolean donation) {
 		this.message = message;
 		this.username = username;
-		this.donation = donation;
+		this.donator = donation;
 		this.admin = admin;
 	}
 
 	public Message(String message) {
 		this.message = message;
 		this.username = "Notice";
-		this.donation = false;
+		this.donator = false;
 		this.admin = false;
 	}
 
@@ -52,7 +53,15 @@ public final class Message {
 		return admin;
 	}
 
-	public boolean getDonation() {
-		return donation;
+	public boolean getDonator() {
+		return donator;
+	}
+
+	public static boolean isNotificationEnabled() {
+		return notificationEnabled;
+	}
+
+	public static void setNotificationEnabled(boolean status) {
+		notificationEnabled = status;
 	}
 }

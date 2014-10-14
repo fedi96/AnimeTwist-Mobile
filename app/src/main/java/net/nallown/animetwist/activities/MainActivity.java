@@ -54,12 +54,12 @@ public class MainActivity extends Activity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		if (!mNavigationDrawerFragment.isDrawerOpen()) {
-			setTitle(R.string.videos_screen);
+			// Drawer opened
 			return true;
 		}
 
 		getMenuInflater().inflate(R.menu.chat, menu);
-		setTitle(R.string.chat_screen);
+		// Drawer closed
 		return super.onCreateOptionsMenu(menu);
 	}
 

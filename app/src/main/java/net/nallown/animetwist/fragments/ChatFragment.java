@@ -94,7 +94,7 @@ public class ChatFragment extends Fragment
 		messageListView = (ListView) view.findViewById(R.id.messages_listview);
 
 		messages = new ArrayList<Message>();
-		messageAdapter = new MessageAdapter(getActivity(), R.layout.list_item_message, messages);
+		messageAdapter = new MessageAdapter(getActivity(), R.layout.item_message, messages);
 
 		messageField = (EditText) view.findViewById(R.id.messageInput);
 
@@ -146,13 +146,13 @@ public class ChatFragment extends Fragment
 	@Override
 	public void onPause() {
 		super.onPause();
-		chatSocket.enableNotifications(true);
+		Message.setNotificationEnabled(true);
 		disconnectTime = System.currentTimeMillis();
 	}
 
 	@Override
 	public void onResume() {
-		chatSocket.enableNotifications(false);
+		Message.setNotificationEnabled(false);
 		chatSocket.reConnect(getActivity());
 
 		//FIXME Remove when session has been set to last one Month
@@ -204,6 +204,7 @@ public class ChatFragment extends Fragment
 				if (!isAdded()) {
 					return;
 				}
+
 
 				getActivity().invalidateOptionsMenu();
 			}
@@ -269,6 +270,8 @@ public class ChatFragment extends Fragment
 
 	@Override
 	public void onSocketOpen() {
+		messages.clear();
+		messageAdapter.notifyDataSetChanged();
 	}
 
 	@Override
@@ -278,8 +281,18 @@ public class ChatFragment extends Fragment
 	}
 
 	@Override
-	public void onSocketMessage(JSONObject messageJsonObj) {
-		messages.add(Message.parseMessage(messageJsonObj));
+	public void onSocketMessage(Message message) {
+		// Needs option and keywords
+		if (message.getMessage().contains(user.getUsername().toLowerCase())
+				&& !message.getUser().equals(user.getUsername().toLowerCase())
+				&& Message.isNotificationEnabled()
+				) {
+			Notifier.showNotification(
+					message.getUser() + " mentioned you",
+					message.getMessage(), true, getActivity()
+			);
+		}
+		messages.add(message);
 		messageAdapter.notifyDataSetChanged();
 	}
 

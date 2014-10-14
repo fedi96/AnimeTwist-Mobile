@@ -6,9 +6,6 @@
 
     <!-- Page Names -->
     <string name="login_screen">Login</string>
-    <string name="chat_screen">Shoutbox</string>
-    <string name="videos_screen">Anime List</string>
-    <string name="title_activity_series">SeriesActivity</string>
 
     <!-- Button Labels -->
     <string name="button_signup">Signup</string>
