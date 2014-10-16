@@ -282,11 +282,11 @@ public class ChatFragment extends Fragment
 	public void onSocketMessage(Message message) {
 		User user = User.getInstance();
 
+		boolean nameMentioned = message.getMessage().contains(user.getUsername().toLowerCase());
+		boolean oddMention = !message.getUser().equals(user.getUsername().toLowerCase());
+
 		// Needs option and keywords
-		if (message.getMessage().contains(user.getUsername().toLowerCase())
-//				&& !message.getUser().equals(user.getUsername().toLowerCase())
-				&& Message.isNotificationEnabled()
-				) {
+		if (nameMentioned && oddMention && Message.isNotificationEnabled()) {
 			Notifier.showNotification(
 					message.getUser() + " mentioned you",
 					message.getMessage(), true, getActivity(), null
