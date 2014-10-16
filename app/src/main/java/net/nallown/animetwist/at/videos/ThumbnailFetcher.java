@@ -23,6 +23,7 @@ public class ThumbnailFetcher extends AsyncTask{
 
 	public void setRequestStates(RequestStates requestStates) {
 		this.requestStates = requestStates;
+		this.execute();
 	}
 
 	@Override

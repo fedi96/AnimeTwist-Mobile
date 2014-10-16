@@ -36,7 +36,6 @@ import java.util.ArrayList;
 /**
  * Created by Nasir on 26/08/2014.
  */
-
 public class ChatFragment extends Fragment
 	implements NetworkReceiver.onNetworkChangeListener,
 	ChatSocket.SocketStates {
@@ -58,10 +57,7 @@ public class ChatFragment extends Fragment
 	private EditText messageField = null;
 	private View view = null;
 
-	private User user = null;
 	private ChatSocket chatSocket = null;
-
-	private NetworkReceiver networkReceiver = null;
 
 	private long disconnectTime = -1;
 
@@ -86,8 +82,6 @@ public class ChatFragment extends Fragment
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 	                         Bundle savedInstanceState) {
-		Bundle data = getActivity().getIntent().getExtras();
-		user = data.getParcelable("user");
 
 		// Initialize components
 		view = inflater.inflate(R.layout.fragment_chat, container, false);
@@ -102,7 +96,7 @@ public class ChatFragment extends Fragment
 		messageListView.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
 		messageListView.setStackFromBottom(true);
 
-		chatSocket = new ChatSocket("wss://animetwist.net:9000", user, getActivity());
+		chatSocket = new ChatSocket("wss://animetwist.net:9000", User.getInstance(), getActivity());
 		chatSocket.setSocketStates(this);
 		chatSocket.connect(getActivity());
 
@@ -132,7 +126,7 @@ public class ChatFragment extends Fragment
 			}
 		});
 
-		networkReceiver = new NetworkReceiver();
+		NetworkReceiver networkReceiver = new NetworkReceiver();
 		networkReceiver.setOnNetworkChangeListener(this);
 
 		return view;
@@ -154,6 +148,7 @@ public class ChatFragment extends Fragment
 	public void onResume() {
 		Message.setNotificationEnabled(false);
 		chatSocket.reConnect(getActivity());
+		User user = User.getInstance();
 
 		//FIXME Remove when session has been set to last one Month
 		if (disconnectTime != -1 && System.currentTimeMillis() - disconnectTime > ((60 * 1000) * 60)) {
@@ -181,6 +176,7 @@ public class ChatFragment extends Fragment
 			userFetcher.execute();
 
 		}
+		chatSocket.reConnect(getActivity());
 
 		super.onResume();
 	}
@@ -216,8 +212,6 @@ public class ChatFragment extends Fragment
 					return;
 				}
 
-				// FIXME Remove when websocket connection lost has been fixed
-				chatSocket.reConnect(getActivity());
 				getActivity().invalidateOptionsMenu();
 			}
 		};
@@ -244,6 +238,10 @@ public class ChatFragment extends Fragment
 		return mDrawerLayout != null && mDrawerLayout.isDrawerOpen(mFragmentContainerView);
 	}
 
+	public View getmFragmentContainerView() {
+		return mFragmentContainerView;
+	}
+
 	public DrawerLayout getDrawerLayout() {
 		return mDrawerLayout;
 	}
@@ -263,7 +261,7 @@ public class ChatFragment extends Fragment
 			messageAdapter.notifyDataSetChanged();
 			Notifier.showNotification(
 					"Connection lost...", "Anime Twist has lost connection.",
-					false, getActivity()
+					false, getActivity(), null
 			);
 		}
 	}
@@ -276,20 +274,22 @@ public class ChatFragment extends Fragment
 
 	@Override
 	public void onSocketClose(WebSocket.WebSocketConnectionObserver.WebSocketCloseNotification code, String reason) {
-		Notifier.showNotification("Socket Closed", reason, true, getActivity());
+		Notifier.showNotification("Socket Closed", reason, true, getActivity(), null);
 		Log.e(LOG_TAG, "socket closed");
 	}
 
 	@Override
 	public void onSocketMessage(Message message) {
+		User user = User.getInstance();
+
 		// Needs option and keywords
 		if (message.getMessage().contains(user.getUsername().toLowerCase())
-				&& !message.getUser().equals(user.getUsername().toLowerCase())
+//				&& !message.getUser().equals(user.getUsername().toLowerCase())
 				&& Message.isNotificationEnabled()
 				) {
 			Notifier.showNotification(
 					message.getUser() + " mentioned you",
-					message.getMessage(), true, getActivity()
+					message.getMessage(), true, getActivity(), null
 			);
 		}
 		messages.add(message);

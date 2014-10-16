@@ -10,7 +10,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import net.nallown.animetwist.R;
-import net.nallown.animetwist.at.User;
 import net.nallown.animetwist.fragments.ChatFragment;
 import net.nallown.animetwist.fragments.SeriesListFragment;
 
@@ -18,16 +17,11 @@ import net.nallown.animetwist.fragments.SeriesListFragment;
 public class MainActivity extends Activity {
 	private final String LOG_TAG = getClass().getSimpleName();
 
-	User user = null;
-
 	private ChatFragment mNavigationDrawerFragment;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-		Bundle data = getIntent().getExtras();
-		user = data.getParcelable("user");
 
 		setContentView(R.layout.activity_main);
 

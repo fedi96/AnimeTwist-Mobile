@@ -7,10 +7,20 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class User implements Parcelable {
-	private final String LOG_TAG = getClass().getSimpleName();
+	private static User userInstance;
+
 	private String username;
 	private String password;
 	private String sessionID;
+
+	public static void setUserInstance(User user, Activity activity) {
+		storeCachedUser(user, activity);
+		userInstance = user;
+	}
+
+	public static User getInstance() {
+		return userInstance;
+	}
 
 	public User(String username, String password, String sessionID) {
 		this.username = username;

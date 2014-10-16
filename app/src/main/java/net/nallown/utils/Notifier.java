@@ -1,6 +1,7 @@
 package net.nallown.utils;
 
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -13,8 +14,8 @@ import net.nallown.animetwist.R;
  */
 public class Notifier {
 
-	public static void showNotification(String title, String message,
-	                                    boolean alert, Context context) {
+	public static void showNotification(
+			String title, String message, boolean alert, Context context, PendingIntent pIntent) {
 		NotificationCompat.Builder mNotification =
 				new NotificationCompat.Builder(context)
 						.setSmallIcon(R.drawable.ic_launcher)
@@ -24,6 +25,11 @@ public class Notifier {
 		if (alert) {
 			Uri alertUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 			mNotification.setSound(alertUri);
+		}
+
+		if (pIntent != null) {
+			mNotification.setContentIntent(pIntent);
+			mNotification.setAutoCancel(true);
 		}
 
 		NotificationManager mNotificationManager =
@@ -38,5 +44,9 @@ public class Notifier {
 					(NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 			mNotificationManager.cancel(notificationId);
 		}
+	}
+
+	public static interface NotificationReceiver {
+		public void onClick();
 	}
 }

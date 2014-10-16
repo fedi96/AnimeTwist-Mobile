@@ -15,29 +15,34 @@
 
         <ImageButton android:id="@+id/prev"
                      style="@android:style/MediaButton.Previous"
-                     android:contentDescription="@string/description" />
+                     android:contentDescription="@string/description"
+                     android:visibility="gone"/>
 
         <ImageButton android:id="@+id/rew"
                      style="@android:style/MediaButton.Rew"
-                     android:contentDescription="@string/description" />
+                     android:contentDescription="@string/description"
+                     android:visibility="gone"/>
 
         <ImageButton android:id="@+id/pause"
-                     style="@android:style/MediaButton.Play"
+                     style="@android:style/MediaButton.Pause"
                      android:contentDescription="@string/description"
                      android:visibility="gone"/>
 
         <ProgressBar
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/loading"/>
+            android:id="@+id/loading"
+            />
 
         <ImageButton android:id="@+id/ffwd"
                      style="@android:style/MediaButton.Ffwd"
-                     android:contentDescription="@string/description" />
+                     android:contentDescription="@string/description"
+                     android:visibility="gone"/>
 
         <ImageButton android:id="@+id/next"
                      style="@android:style/MediaButton.Next"
-                     android:contentDescription="@string/description" />
+                     android:contentDescription="@string/description"
+                     android:visibility="gone"/>
 
     </LinearLayout>
 
@@ -47,7 +52,9 @@
         android:orientation="horizontal"
         android:paddingLeft="8dip"
         android:paddingRight="8dip"
-        android:paddingBottom="4dp">
+        android:paddingBottom="4dp"
+        android:visibility="invisible"
+        android:id="@+id/controller_bottom">
 
         <TextView android:id="@+id/time_current"
                   android:textSize="14sp"

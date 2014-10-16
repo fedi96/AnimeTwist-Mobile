@@ -3,6 +3,7 @@ package net.nallown.animetwist.fragments;
 
 import android.app.Fragment;
 import android.content.Intent;
+import android.database.DataSetObserver;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.text.Editable;
@@ -25,12 +26,12 @@ import net.nallown.animetwist.at.videos.VideoFetcher;
 import java.util.ArrayList;
 
 /**
- * A simple {@link Fragment} subclass.
- *
+ * Created by Nasir on 24/08/2014.
  */
 public class SeriesListFragment extends Fragment implements VideoFetcher.RequestStates {
 	private final String LOG_TAG = getClass().getSimpleName();
 
+	private Video Tvideo = null;
 	private ArrayList<Video> videos = null;
 	private ArrayList<Video> allVideos = null;
 	private VideoAdapter videoAdapter = null;
@@ -54,6 +55,16 @@ public class SeriesListFragment extends Fragment implements VideoFetcher.Request
 	    videos = new ArrayList<Video>();
 	    allVideos = new ArrayList<Video>();
 	    videoAdapter = new VideoAdapter(getActivity(), R.layout.item_video, videos);
+		videoAdapter.registerDataSetObserver(new DataSetObserver() {
+			@Override
+			public void onChanged() {
+				if (!allVideos.contains(Tvideo)) {
+					allVideos.add(Tvideo);
+				}
+				Tvideo = null;
+				super.onChanged();
+			}
+		});
 
 	    videoListView.setAdapter(videoAdapter);
 		videoListView.setOnItemClickListener(onVideoClick);
@@ -130,12 +141,11 @@ public class SeriesListFragment extends Fragment implements VideoFetcher.Request
 				public void onFinish(Bitmap thumbnailBitmap) {
 					video.setThumbnail(thumbnailBitmap);
 					videos.add(video);
-					allVideos.add(video);
+					Tvideo = video;
 
 					videoAdapter.notifyDataSetChanged();
 				}
 			});
-			thumbnailFetcher.execute();
 		}
 	}
 }

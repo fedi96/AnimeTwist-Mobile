@@ -104,10 +104,8 @@ public class LoginFragment extends Fragment implements UserFetcher.RequestStates
 	@Override
 	public void onFetchFinish(User user) {
 		if (user != null) {
-			User.storeCachedUser(user, getActivity());
-
-			Intent mainIntent = new Intent(getActivity(), MainActivity.class)
-					.putExtra("user", user);
+			User.setUserInstance(user, getActivity());
+			Intent mainIntent = new Intent(getActivity(), MainActivity.class);
 			startActivity(mainIntent);
 			getActivity().finish();
 		} else {

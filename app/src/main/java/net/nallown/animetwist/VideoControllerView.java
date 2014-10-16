@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
@@ -49,6 +50,7 @@ public class VideoControllerView extends FrameLayout {
 	private ImageButton         mNextButton;
 	private ImageButton         mPrevButton;
 	private ImageButton         mFullscreenButton;
+	private LinearLayout        mControllerBottom;
 	private Handler             mHandler = new MessageHandler(this);
 
 	public VideoControllerView(Context context, AttributeSet attrs) {
@@ -127,6 +129,7 @@ public class VideoControllerView extends FrameLayout {
 	}
 
 	private void initControllerView(View v) {
+		mControllerBottom = (LinearLayout) v.findViewById(R.id.controller_bottom);
 		mPauseButton = (ImageButton) v.findViewById(R.id.pause);
 		if (mPauseButton != null) {
 			mPauseButton.requestFocus();
@@ -142,17 +145,11 @@ public class VideoControllerView extends FrameLayout {
 		mFfwdButton = (ImageButton) v.findViewById(R.id.ffwd);
 		if (mFfwdButton != null) {
 			mFfwdButton.setOnClickListener(mFfwdListener);
-			if (!mFromXml) {
-				mFfwdButton.setVisibility(mUseFastForward ? View.VISIBLE : View.GONE);
-			}
 		}
 
 		mRewButton = (ImageButton) v.findViewById(R.id.rew);
 		if (mRewButton != null) {
 			mRewButton.setOnClickListener(mRewListener);
-			if (!mFromXml) {
-				mRewButton.setVisibility(mUseFastForward ? View.VISIBLE : View.GONE);
-			}
 		}
 
 		// By default these are hidden. They will be enabled when setPrevNextListeners() is called
@@ -453,11 +450,15 @@ public class VideoControllerView extends FrameLayout {
 	@Override
 	public void setEnabled(boolean enabled) {
 		if (mPauseButton != null) {
+			mPauseButton.setEnabled(enabled);
 			if (enabled && mPauseButton.getVisibility() == GONE) {
 				mPauseButton.setVisibility(VISIBLE);
+				mControllerBottom.setVisibility(VISIBLE);
+				mRewButton.setVisibility(VISIBLE);
+				mFfwdButton.setVisibility(VISIBLE);
 				mBuffering.setVisibility(GONE);
+				show();
 			}
-			mPauseButton.setEnabled(enabled);
 		}
 		if (mFfwdButton != null) {
 			mFfwdButton.setEnabled(enabled);

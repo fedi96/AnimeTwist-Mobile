@@ -53,7 +53,7 @@ public final class Message {
 		return admin;
 	}
 
-	public boolean getDonator() {
+	public boolean isDonator() {
 		return donator;
 	}
 

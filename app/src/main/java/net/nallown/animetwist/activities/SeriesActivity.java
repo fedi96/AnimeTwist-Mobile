@@ -105,9 +105,10 @@ public class SeriesActivity extends Activity
 
 		player = new MediaPlayer();
 		controller = new VideoControllerView(this);
-		controller.setMediaPlayer(this);
 		controller.setEnabled(false);
+		controller.setMediaPlayer(this);
 		controller.setAnchorView((FrameLayout) findViewById(R.id.videoSurfaceContainer));
+		controller.show(0);
 
 		try {
 			player.setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -157,8 +158,9 @@ public class SeriesActivity extends Activity
 	@Override
 	public void onPrepared(MediaPlayer mp) {
 		controller.setEnabled(true);
-		player.start();
 		playerPrepared = true;
+		player.start();
+		controller.updatePausePlay();
 	}
 
 	@Override

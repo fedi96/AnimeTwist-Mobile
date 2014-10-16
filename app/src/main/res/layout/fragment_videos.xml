@@ -24,7 +24,7 @@
         android:footerDividersEnabled="false"
         android:layout_weight="1"
         android:dividerHeight="1dp"
-        android:divider="@color/transparent"/>
+        android:divider="@color/transparent" />
 
     <LinearLayout
         android:orientation="vertical"
