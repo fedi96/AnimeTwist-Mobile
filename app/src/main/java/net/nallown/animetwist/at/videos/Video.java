@@ -14,7 +14,6 @@ public class Video {
 	private String folder;
 	private String thumbnailUrl;
 	private boolean ongoing;
-	private Bitmap thumbnail;
 
 	public Video(String title, boolean ongoing, String folder, String thumbnailUrl) {
 		this.title = title;
@@ -48,9 +47,4 @@ public class Video {
 		return ongoing;
 	}
 
-	public Bitmap getThumbnail() { return thumbnail; }
-
-	public void setThumbnail(Bitmap thumbnail) {
-		this.thumbnail = thumbnail;
-	}
 }

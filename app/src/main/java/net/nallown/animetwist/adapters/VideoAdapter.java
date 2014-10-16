@@ -9,9 +9,12 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
+
 import net.nallown.animetwist.R;
 import net.nallown.animetwist.at.videos.Video;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -21,9 +24,20 @@ public class VideoAdapter extends ArrayAdapter<Video> {
 
 	private int resource;
 
-	public VideoAdapter(Context context, int resource, List<Video> items) {
-		super(context, resource, items);
+	public VideoAdapter(Context context, int resource, ArrayList<Video> videos) {
+		super(context, resource, videos);
 		this.resource = resource;
+	}
+
+
+	public void setVideoList(ArrayList<Video> videos){
+		this.clear();
+		this.addAll(videos);
+		notifyDataSetChanged();
+	}
+
+	public Video getVideo(int i) {
+		return this.getItem(i);
 	}
 
 	@Override
@@ -52,7 +66,8 @@ public class VideoAdapter extends ArrayAdapter<Video> {
 			ongoing_tag.setVisibility(View.GONE);
 		}
 
-		thumbnail.setImageBitmap(video.getThumbnail());
+		Picasso.with(getContext()).load(video.getThumbnailUrl()).into(thumbnail);
+
 		thumbnail.setScaleType(ImageView.ScaleType.CENTER_CROP);
 		thumbnail.setAlpha(0.9f);
 

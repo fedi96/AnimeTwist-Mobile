@@ -3,8 +3,6 @@ package net.nallown.animetwist.fragments;
 
 import android.app.Fragment;
 import android.content.Intent;
-import android.database.DataSetObserver;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -19,7 +17,6 @@ import android.widget.ListView;
 import net.nallown.animetwist.R;
 import net.nallown.animetwist.activities.SeriesActivity;
 import net.nallown.animetwist.adapters.VideoAdapter;
-import net.nallown.animetwist.at.videos.ThumbnailFetcher;
 import net.nallown.animetwist.at.videos.Video;
 import net.nallown.animetwist.at.videos.VideoFetcher;
 
@@ -31,56 +28,43 @@ import java.util.ArrayList;
 public class SeriesListFragment extends Fragment implements VideoFetcher.RequestStates {
 	private final String LOG_TAG = getClass().getSimpleName();
 
-	private Video Tvideo = null;
-	private ArrayList<Video> videos = null;
 	private ArrayList<Video> allVideos = null;
 	private VideoAdapter videoAdapter = null;
 
 	private EditText searchEditText;
 	private LinearLayout fetchingVideos;
 
-    public SeriesListFragment() {
-    }
+	public SeriesListFragment() {
+	}
 
 
 	@Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-	    View view = inflater.inflate(R.layout.fragment_videos, container, false);
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+	                         Bundle savedInstanceState) {
+		View view = inflater.inflate(R.layout.fragment_videos, container, false);
 
-	    ListView videoListView = (ListView) view.findViewById(R.id.videos_listitem);
+		ListView videoListView = (ListView) view.findViewById(R.id.videos_listitem);
 		searchEditText = (EditText) view.findViewById(R.id.videos_search);
-	    fetchingVideos = (LinearLayout) view.findViewById(R.id.fetching_videos);
+		fetchingVideos = (LinearLayout) view.findViewById(R.id.fetching_videos);
 
-	    videos = new ArrayList<Video>();
-	    allVideos = new ArrayList<Video>();
-	    videoAdapter = new VideoAdapter(getActivity(), R.layout.item_video, videos);
-		videoAdapter.registerDataSetObserver(new DataSetObserver() {
-			@Override
-			public void onChanged() {
-				if (!allVideos.contains(Tvideo)) {
-					allVideos.add(Tvideo);
-				}
-				Tvideo = null;
-				super.onChanged();
-			}
-		});
+		allVideos = new ArrayList<Video>();
+		videoAdapter = new VideoAdapter(getActivity(), R.layout.item_video, new ArrayList<Video>());
 
-	    videoListView.setAdapter(videoAdapter);
+		videoListView.setAdapter(videoAdapter);
 		videoListView.setOnItemClickListener(onVideoClick);
 
 		VideoFetcher videoFetcher = new VideoFetcher(this);
 		videoFetcher.execute();
 
-	    searchEditText.addTextChangedListener(onSearchEdit);
+		searchEditText.addTextChangedListener(onSearchEdit);
 
-        return view;
-    }
+		return view;
+	}
 
 	AdapterView.OnItemClickListener onVideoClick = new AdapterView.OnItemClickListener() {
 		@Override
 		public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-			String seriesFolder = videos.get(i).getFolder();
+			String seriesFolder = videoAdapter.getVideo(i).getFolder();
 			Intent videoIntent = new Intent(getActivity(), SeriesActivity.class);
 			videoIntent.putExtra("folder_name", seriesFolder);
 
@@ -105,14 +89,15 @@ public class SeriesListFragment extends Fragment implements VideoFetcher.Request
 	};
 
 	private void sortListView(String searchStr) {
-		videos.clear();
+		ArrayList<Video> queryVideos = new ArrayList<Video>();
+
 		for (Video video: allVideos) {
 			if (video.getTitle().toLowerCase().contains(searchStr)) {
-				videos.add(video);
+				queryVideos.add(video);
 			}
 		}
+		videoAdapter.setVideoList(queryVideos);
 
-		videoAdapter.notifyDataSetChanged();
 	}
 
 	@Override
@@ -130,22 +115,7 @@ public class SeriesListFragment extends Fragment implements VideoFetcher.Request
 		fetchingVideos.setVisibility(View.GONE);
 		searchEditText.setVisibility(View.VISIBLE);
 
-		for (final Video video : videoArrayList) {
-			ThumbnailFetcher thumbnailFetcher = new ThumbnailFetcher(video.getThumbnailUrl());
-			thumbnailFetcher.setRequestStates(new ThumbnailFetcher.RequestStates() {
-				@Override
-				public void onError(Exception e) {
-				}
-
-				@Override
-				public void onFinish(Bitmap thumbnailBitmap) {
-					video.setThumbnail(thumbnailBitmap);
-					videos.add(video);
-					Tvideo = video;
-
-					videoAdapter.notifyDataSetChanged();
-				}
-			});
-		}
+		allVideos.addAll(videoArrayList);
+		videoAdapter.setVideoList(videoArrayList);
 	}
 }
