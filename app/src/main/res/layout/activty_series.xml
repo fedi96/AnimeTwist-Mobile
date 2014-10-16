@@ -14,7 +14,7 @@
 
         <SurfaceView
             android:id="@+id/videoSurface"
-            android:layout_width="match_parent"
+            android:layout_width="match_parent" 
             android:layout_height="@dimen/video_height_normal"
             android:layout_gravity="center"/>
     </FrameLayout>
