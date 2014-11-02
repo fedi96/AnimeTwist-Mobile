@@ -42,7 +42,7 @@ Solutions Used
 [Anime Twist] uses a number of solution to keep its services efficient and secure, these are as following:
 * [WebSocket] - web based socket protocol used to provide realtime and simple chat services.
 * [Go] - *C* based programming language used to run the server side of the website in including the WebSocket and the Server Side Applications.
-* [MariaDB] - Fork of MySQL with many security, efficiency and future patches used to store all the long term data in.
+* [MariaDB] - Fork of MySQL with many security, efficiency and feature patches used to store all the long term data in.
 * [Gradle] - Automation of the android application with building, testing, publishing, deployment and dependency/package management.
 
 As this is just the Android application, for more information in relation to the web application please refer to the official [Anime Twist Repository] of the web application available on [Azertify]'s account.
