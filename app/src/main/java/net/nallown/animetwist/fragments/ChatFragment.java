@@ -17,19 +17,16 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import net.nallown.animetwist.R;
 import net.nallown.animetwist.adapters.MessageAdapter;
 import net.nallown.animetwist.at.User;
-import net.nallown.animetwist.at.UserFetcher;
 import net.nallown.animetwist.at.chat.ChatSocket;
 import net.nallown.animetwist.at.chat.Message;
 import net.nallown.utils.NetworkReceiver;
 import net.nallown.utils.Notifier;
 import net.nallown.utils.websocket.WebSocket;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -40,7 +37,7 @@ public class ChatFragment extends Fragment
 	implements NetworkReceiver.onNetworkChangeListener,
 	ChatSocket.SocketStates {
 	private final String LOG_TAG = getClass().getSimpleName();
-	private String DRAWER_STATE_TITLE = "DRAWER_STATE";
+	private final String DRAWER_STATE_TITLE = "DRAWER_STATE";
 
 	private SharedPreferences sharedPreferences;
 	private boolean mUserLearnedDrawer;
@@ -50,7 +47,6 @@ public class ChatFragment extends Fragment
 	private DrawerLayout mDrawerLayout;
 	private View mFragmentContainerView;
 
-	private ArrayList<Message> messages = null;
 	private MessageAdapter messageAdapter = null;
 
 	private ListView messageListView = null;
@@ -58,8 +54,6 @@ public class ChatFragment extends Fragment
 	private View view = null;
 
 	private ChatSocket chatSocket = null;
-
-	private long disconnectTime = -1;
 
 	public ChatFragment() {
 	}
@@ -83,12 +77,10 @@ public class ChatFragment extends Fragment
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 	                         Bundle savedInstanceState) {
 
-		// Initialize components
 		view = inflater.inflate(R.layout.fragment_chat, container, false);
 		messageListView = (ListView) view.findViewById(R.id.messages_listview);
 
-		messages = new ArrayList<Message>();
-		messageAdapter = new MessageAdapter(getActivity(), R.layout.item_message, messages);
+		messageAdapter = new MessageAdapter(getActivity(), R.layout.item_message, new ArrayList<Message>());
 
 		messageField = (EditText) view.findViewById(R.id.messageInput);
 
@@ -96,7 +88,7 @@ public class ChatFragment extends Fragment
 		messageListView.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
 		messageListView.setStackFromBottom(true);
 
-		chatSocket = new ChatSocket("wss://animetwist.net:9000", User.getInstance(), getActivity());
+		chatSocket = new ChatSocket("ws://twist.moe:9003/", getActivity());
 		chatSocket.setSocketStates(this);
 		chatSocket.connect(getActivity());
 
@@ -109,15 +101,7 @@ public class ChatFragment extends Fragment
 					actionID == EditorInfo.IME_ACTION_SEND
 					|| keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER
 				) && !message.isEmpty()){
-					JSONObject msgJson = new JSONObject();
-					try {
-						msgJson.put("type", "msg");
-						msgJson.put("msg", message);
-					} catch (JSONException e) {
-						e.printStackTrace();
-					}
-
-					chatSocket.sendMessage(msgJson.toString());
+					chatSocket.sendTextMessage(message);
 					messageField.setText(null);
 					return true;
 				}
@@ -141,44 +125,12 @@ public class ChatFragment extends Fragment
 	public void onPause() {
 		super.onPause();
 		Message.setNotificationEnabled(true);
-		disconnectTime = System.currentTimeMillis();
 	}
 
 	@Override
 	public void onResume() {
-		Message.setNotificationEnabled(false);
-		chatSocket.reConnect(getActivity());
-		User user = User.getInstance();
-
-		//FIXME Remove when session has been set to last one Month
-		if (disconnectTime != -1 && System.currentTimeMillis() - disconnectTime > ((60 * 1000) * 60)) {
-			UserFetcher userFetcher = new UserFetcher(user.getUsername(), user.getPassword());
-
-			userFetcher.setRequestStates(new UserFetcher.RequestStates() {
-				@Override
-				public void onFetchError(Exception e) {
-					e.printStackTrace();
-				}
-
-
-				@Override
-				public void onFetchStart() {
-				}
-
-				@Override
-				public void onFetchFinish(User user) {
-					if (user != null) {
-						chatSocket.sendUser(user);
-						Log.i(LOG_TAG, "Reconnected to socket");
-					}
-				}
-			});
-			userFetcher.execute();
-
-		}
-		chatSocket.reConnect(getActivity());
-
 		super.onResume();
+		Message.setNotificationEnabled(false);
 	}
 
 	public void setUp(int fragmentId, DrawerLayout drawerLayout) {
@@ -251,12 +203,12 @@ public class ChatFragment extends Fragment
 		if (connected) {
 			chatSocket.reConnect(getActivity());
 			messageField.setEnabled(true);
-			messageField.setHint("...");
+			messageField.setHint(getResources().getString(R.string.chat_enabled_hint));
 		} else {
 			messageField.setEnabled(false);
 			messageField.setHint("No network connection...");
 
-			messages.add(Message.notify("Lost network connection"));
+			messageAdapter.addMessage(Message.notify("Lost network connection"));
 
 			messageAdapter.notifyDataSetChanged();
 			Notifier.showNotification(
@@ -268,7 +220,13 @@ public class ChatFragment extends Fragment
 
 	@Override
 	public void onSocketOpen() {
-		messages.clear();
+		if (messageField.getHint().toString().equals(getResources().getString(R.string.chat_failed_hint))) {
+			messageField.setHint(getResources().getString(R.string.chat_enabled_hint));
+			messageField.setEnabled(true);
+		}
+		messageAdapter.clear();
+
+		chatSocket.sendUser(User.getInstance());
 		messageAdapter.notifyDataSetChanged();
 	}
 
@@ -281,9 +239,8 @@ public class ChatFragment extends Fragment
 	@Override
 	public void onSocketMessage(Message message) {
 		User user = User.getInstance();
-
-		boolean nameMentioned = message.getMessage().contains(user.getUsername().toLowerCase());
-		boolean oddMention = !message.getUser().equals(user.getUsername().toLowerCase());
+		boolean nameMentioned = message.getMessage().toLowerCase().contains(user.getUsername().toLowerCase());
+		boolean oddMention = !message.getUser().equals(user.getUsername());
 
 		// Needs option and keywords
 		if (nameMentioned && oddMention && Message.isNotificationEnabled()) {
@@ -292,12 +249,18 @@ public class ChatFragment extends Fragment
 					message.getMessage(), true, getActivity(), null
 			);
 		}
-		messages.add(message);
+		messageAdapter.addMessage(message);
 		messageAdapter.notifyDataSetChanged();
 	}
 
 	@Override
 	public void onSocketError(Exception e) {
-		e.printStackTrace();
+		final Toast noNetworkToast = Toast.makeText(
+				getActivity(), "Failed to connect to the Anime Twist chat.", Toast.LENGTH_LONG);
+		if (e instanceof NullPointerException) {
+			noNetworkToast.show();
+		} else {
+			e.printStackTrace();
+		}
 	}
 }

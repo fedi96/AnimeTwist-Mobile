@@ -31,7 +31,7 @@ public final class Message {
 	public static Message parseMessage(JSONObject msgJson) {
 		String username = msgJson.optString("username");
 		String message = Html.fromHtml(msgJson.optString("msg")).toString();
-		boolean donation = (msgJson.optInt("donation") == 1);
+		boolean donation = (msgJson.optInt("donator") == 1);
 		boolean op = (msgJson.optInt("op") == 1);
 
 		return new Message(username, message, op, donation);

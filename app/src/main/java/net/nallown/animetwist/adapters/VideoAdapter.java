@@ -15,7 +15,6 @@ import net.nallown.animetwist.R;
 import net.nallown.animetwist.at.videos.Video;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by nasir on 15/09/14.
@@ -28,7 +27,6 @@ public class VideoAdapter extends ArrayAdapter<Video> {
 		super(context, resource, videos);
 		this.resource = resource;
 	}
-
 
 	public void setVideoList(ArrayList<Video> videos){
 		this.clear();

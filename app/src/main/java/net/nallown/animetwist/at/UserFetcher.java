@@ -1,6 +1,7 @@
 package net.nallown.animetwist.at;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -45,7 +46,7 @@ public class UserFetcher extends AsyncTask<Void, Void, Void> {
 	@Override
 	protected Void doInBackground(Void... voids) {
 		HttpClient httpClient = new DefaultHttpClient();
-		HttpPost httpPost = new HttpPost("https://animetwist.net/login");
+		HttpPost httpPost = new HttpPost("http://twist.moe/login");
 
 		List<NameValuePair> postData = new ArrayList<NameValuePair>(2);
 		postData.add(new BasicNameValuePair("username", username));
@@ -59,6 +60,7 @@ public class UserFetcher extends AsyncTask<Void, Void, Void> {
 			listener.onFetchError(e);
 		}
 
+		Log.d("PAYLOAD", payload);
 		return null;
 	}
 

@@ -65,10 +65,10 @@ public class SeriesListFragment extends Fragment implements VideoFetcher.Request
 		@Override
 		public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 			String seriesFolder = videoAdapter.getVideo(i).getFolder();
-			Intent videoIntent = new Intent(getActivity(), SeriesActivity.class);
-			videoIntent.putExtra("folder_name", seriesFolder);
+			Intent seriesIntent = new Intent(getActivity(), SeriesActivity.class);
+			seriesIntent.putExtra("folder_name", seriesFolder);
 
-			startActivity(videoIntent);
+			startActivity(seriesIntent);
 		}
 	};
 

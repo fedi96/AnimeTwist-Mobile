@@ -28,12 +28,10 @@ public class ChatSocket implements WebSocket.WebSocketConnectionObserver {
 	private URI ServerURI;
 	private String host = null;
 
-	public ChatSocket(String host, User user, Activity activity) {
-		this.user = user;
+	public ChatSocket(String host, Activity activity) {
 		this.activity = activity;
 		this.host = host;
 	}
-
 
 	public void setSocketStates(SocketStates socketStates) {
 		this.socketStates = socketStates;
@@ -81,6 +79,18 @@ public class ChatSocket implements WebSocket.WebSocketConnectionObserver {
 		socketConnection.sendTextMessage(msg);
 	}
 
+	public void sendTextMessage(String msg) {
+		JSONObject msgJson = new JSONObject();
+		try {
+			msgJson.put("type", "msg");
+			msgJson.put("msg", msg);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+
+		this.sendMessage(msgJson.toString());
+	}
+
 	public void sendUser(User user) {
 		JSONObject authJson = new JSONObject();
 		try {
@@ -105,8 +115,7 @@ public class ChatSocket implements WebSocket.WebSocketConnectionObserver {
 
 		socketConnection = new WebSocketConnection();
 		webSocketOptions = new WebSocketOptions();
-		webSocketOptions.setSocketConnectTimeout((60 * 1000) * 5);
-		webSocketOptions.setReconnectInterval((60 * 1000) * 5);
+		webSocketOptions.setReconnectInterval((60 * 1000) * 6);
 
 		try {
 			ServerURI = new URI(host);
@@ -115,9 +124,9 @@ public class ChatSocket implements WebSocket.WebSocketConnectionObserver {
 			this.socketStates.onSocketError(e);
 		} catch (WebSocketException e) {
 			this.socketStates.onSocketError(e);
+		} catch (NullPointerException e) {
+			this.socketStates.onSocketError(e);
 		}
-
-		sendUser(user);
 	}
 
 	public void reConnect(Activity activity) {

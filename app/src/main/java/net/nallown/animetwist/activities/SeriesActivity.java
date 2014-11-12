@@ -91,10 +91,12 @@ public class SeriesActivity extends Activity
 		surfaceView.setOnTouchListener(new View.OnTouchListener() {
 			@Override
 			public boolean onTouch(View view, MotionEvent motionEvent) {
-				if (!controller.isShowing()) {
-					controller.show();
-				} else {
-					controller.hide();
+				if (controller.isEnabled()) {
+					if (!controller.isShowing()) {
+						controller.show();
+					} else {
+						controller.hide();
+					}
 				}
 
 				return false;

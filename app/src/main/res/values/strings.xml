@@ -17,6 +17,10 @@
     <string name="action_logout">Logout</string>
     <string name="action_settings">Settings</string>
 
+    <!-- Chat Elements -->
+    <string name="chat_failed_hint">Failed to connect to the chat.</string>
+    <string name="chat_enabled_hint">...</string>
+
     <!-- Video Player -->
     <string name="description">Media Controls</string>
     <string name="title_activity_fullscreen">FullscreenActivity</string>

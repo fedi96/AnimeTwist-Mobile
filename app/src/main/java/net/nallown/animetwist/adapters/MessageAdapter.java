@@ -12,7 +12,7 @@ import android.widget.TextView;
 import net.nallown.animetwist.R;
 import net.nallown.animetwist.at.chat.Message;
 
-import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Created by Nasir on 27/08/2014.
@@ -22,13 +22,18 @@ public class MessageAdapter extends ArrayAdapter<Message> {
 	private int resource;
 	private int[] colors;
 
-	public MessageAdapter(Context context, int resource, List<Message> items) {
+	public MessageAdapter(Context context, int resource, ArrayList<Message> items) {
 		super(context, resource, items);
 		this.resource = resource;
 		colors = new int[]{
 				context.getResources().getColor(R.color.black),
 				context.getResources().getColor(R.color.gray_dark_extreme)
 		};
+	}
+
+	public void addMessage(Message message) {
+		this.add(message);
+		notifyDataSetChanged();
 	}
 
 	@Override

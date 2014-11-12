@@ -3,6 +3,7 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:orientation="vertical"
+              android:background="@color/black"
               tools:context="net.nallown.animetwist.fragments.ChatFragment" >
 
     <ListView
@@ -20,9 +21,10 @@
         android:layout_width="match_parent"
         android:layout_height="45dp"
         android:autoText="true"
-        android:hint="..."
+        android:hint="@string/chat_failed_hint"
         android:imeOptions="actionSend"
         android:inputType="text"
-        android:singleLine="false"/>
+        android:singleLine="false"
+        android:enabled="false"/>
 
 </LinearLayout>

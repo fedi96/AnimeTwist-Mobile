@@ -28,6 +28,8 @@ public class LoginFragment extends Fragment implements UserFetcher.RequestStates
 	private final String LOG_TAG = getClass().getSimpleName();
 	private View view;
 
+	private Toast noNetworkToast = null;
+
 	private Button loginButton = null;
 	private TextView registerButton = null;
 	private EditText usernameInput = null;
@@ -40,6 +42,8 @@ public class LoginFragment extends Fragment implements UserFetcher.RequestStates
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 	                         Bundle savedInstanceState) {
+		noNetworkToast = Toast.makeText(
+				getActivity(), "Failed to connect to the Anime Twist servers.", Toast.LENGTH_LONG);
 		view = inflater.inflate(R.layout.fragment_login, container, false);
 
 		registerButton = (TextView) view.findViewById(R.id.login_signup);
@@ -59,7 +63,7 @@ public class LoginFragment extends Fragment implements UserFetcher.RequestStates
 		registerButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				Intent browserIntent =
-						new Intent(Intent.ACTION_VIEW, Uri.parse("http://animetwist.net/register"));
+						new Intent(Intent.ACTION_VIEW, Uri.parse("https://twist.moe/register"));
 				startActivity(browserIntent);
 			}
 		});
@@ -91,9 +95,6 @@ public class LoginFragment extends Fragment implements UserFetcher.RequestStates
 
 	@Override
 	public void onFetchError(Exception e) {
-		final Toast noNetworkToast = Toast.makeText(
-				getActivity(), "Failed to connect to the Anime Twist servers.", Toast.LENGTH_LONG);
-
 		if (e instanceof IOException) {
 			noNetworkToast.show();
 		} else {
