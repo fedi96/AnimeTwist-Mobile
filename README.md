@@ -45,7 +45,7 @@ Solutions Used
 * [MariaDB] - Fork of MySQL with many security, efficiency and feature patches used to store all the long term data in.
 * [Gradle] - Automation of the android application with building, testing, publishing, deployment and dependency/package management.
 
-As this is just the Android application, for more information in relation to the web application please refer to the official Anime Twist Repository of the web application available on [Azertify]'s account.
+As this is just the Android application, for more information in relation to the web application please refer to the official [Anime Twist Repository] of the web application available on [Azertify]'s account.
 
 License
 ----
@@ -53,6 +53,7 @@ License
 For Licensing information please refer to the official [Anime Twist Repository].
 
 [Anime Twist]:https://twist.moe
+[Anime Twist Repository]:https://github.com/azertify/learning-java/tree/master/ChatServer/
 [WebSocket]:https://www.websocket.org
 [Go]:http://golang.org/
 [MariaDB]:https://mariadb.org/
