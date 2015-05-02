@@ -1,4 +1,4 @@
-Anime Twist (Android)
+Anime Twist (Android) - DEPRECATED
 =========
 
 [Anime Twist] hosts high quality anime series in 720p and 1080p, with beautifully responsive page and design, watch HD anime for free at [Anime Twist].
